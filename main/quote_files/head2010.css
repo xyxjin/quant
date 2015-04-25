@@ -1,0 +1,80 @@
+/* header */
+#head2010{ width:960px; margin:0 auto; overflow:hidden; background:#fff; font-size:12px}
+#head2010 *{ padding:0; margin:0; font-size:12px;}
+#head2010 a{ text-decoration:none;color:#000;}
+#head2010 a:hover{ text-decoration: underline; color:#900;}
+#head2010 .navetc{ height:52px; overflow:hidden; border:#bebebe 1px solid; border-bottom: none; background: url(http://img.hexun.com/news/2010/img/head2010.gif) repeat-x 0 -417px; }
+#head2010 .navetc .navL{ width:825px; float:left; padding:3px 0 0 0; height: 52px; border-right:#bebebe 1px solid;} 
+#head2010 .navetc .navL td{ line-height:25px; background: url(http://img.hexun.com/news/2010/img/head2010.gif) no-repeat 100% 5px; text-align: center; }
+#head2010 .navetc .navL td.nr{ background: none; }
+#head2010 .navetc .navR{ width:125px; float:right; padding:3px 3px 3px 0; overflow: hidden;}
+#head2010 .login{ background: #e8e8e8; color: #144E7E; line-height: 20px; text-align: center; height: 20px; }
+#head2010 .login dd{ color: #000; text-align: center; overflow: hidden; height: 18px; line-height: normal; list-style: none; padding: 4px 0 0 0; overflow: hidden; }
+#head2010 .login dd a{ display: inline-block; padding: 0 1px 0 2px; vertical-align: top; }
+#head2010 .login dd div{  float: left;}
+#head2010 .login dd .username{ width: 60px; height: 14px; line-height: 14px; text-align: right; overflow: hidden;display: inline-block; margin-left: 8px  }
+#head2010 #enterhexun{ text-align: center; height: 22px; line-height: 20px; padding: 5px 0 0 0;}
+#head2010 #enterhexun a{ color: #656565; display: inline-block; }
+#head2010 #enterhexun .tel{ background: url(http://img.hexun.com/news/2010/img/head2010.gif) no-repeat 0 -231px; padding: 2px 0 0 10px; }
+
+#head2010 .logoetc{ height:40px; overflow:hidden; background: url(http://img.hexun.com/news/2010/img/head2010.gif) repeat-x 0 -41px; }
+#head2010 .logoetc .logo{ float:left; padding:0 0 0 10px; height:40px; background: url(http://img.hexun.com/news/2010/img/head2010.gif) repeat-x 0 -141px;;}
+#head2010 .logoetc .date{ float:left; color: #cadffe; padding: 18px 0 0 5px; height: 16px; line-height: 16px; overflow: hidden;}
+#head2010 .logoetc .sea{ width:505px; float:right; overflow:hidden; color:#fff;}
+#head2010 .logoetc .sea dt{ float:left; padding:13px 5px 0 0; height: 20px; overflow: hidden; line-height: normal;}
+#head2010 .logoetc .sea dd{ float:left; padding:13px 5px 0 0;}
+#head2010 .logoetc .sea dt input{ margin-right:4px;*margin-right:1px; margin-top: 2px;*margin-top:0}
+#head2010 .logoetc .sea dd .inputtxt{ border: #9c9c9c 1px solid; color: #626262; padding: 3px 0 0 3px; width: 154px; }
+#head2010 .logoetc .sea dd .inputbtn{ background: url(http://img.hexun.com/news/2010/img/head_but.gif) no-repeat 0 0; cursor: pointer; width: 68px; height: 21px; line-height: 22px; border: 0; text-align: center; color: #fff; font-size: 12px;}
+#sysec *{ padding:0; margin:0; font-size:12px;}
+#sysec a{ text-decoration:none;color:#000;}
+#sysec a:hover{ text-decoration: underline; color:#900;}
+#lbysec *{ padding:0; margin:0; font-size:12px;}
+#lbysec a{ text-decoration:none;color:#000;}
+#lbysec a:hover{ text-decoration: underline; color:#900;}
+#sysec,#lbysec{ width: 960px; margin: 0 auto; overflow: hidden; }
+#sysec #secnav,#lbysec #secnav{ border-left:#bebebe 1px solid; border-right:#bebebe 1px solid;font-size:12px; line-height:18px;overflow:hidden;}
+#sysec #secnav{  padding: 6px 5px 0px 10px;background: url(http://img.hexun.com/news/2010/img/sec_bg.gif) repeat-x left bottom; color:#d2d2d2}
+#lbysec #secnav{  padding: 6px 5px 4px 10px;border-bottom: #bebebe 1px solid;}
+/* 091228 */
+#hexunMember_nologinSetup_div_display_nologin{ height: 20px; padding: 1px 0 0 0; line-height: 20px; text-align: center; background: #e8e8e8 }
+#hexunMember_isloginedSetup_div_display{ height: 20px; padding: 1px 0 0 0; line-height: 20px; text-align: center; background: #e8e8e8 }
+#hexunMember_isloginedSetup_div_display span{ display: block; float: left; }
+#hexunMember_isloginedSetup_span_display_username{ width: 52px; height: 20px; overflow: hidden; text-align: right; padding:0 0 0 8px; margin-right: 5px; }
+#hexunMember_nologinSetup_span_display_userREG a{ padding-left: 6px;  }
+#hexunMember_isloginedSetup_span_display_signout a{ padding-left: 6px }
+#hexunMember_nologinSetup_span_display_loginBTN{ padding-right: 4px; }
+
+/*20101217*/
+#head2010 .logoetc .cabar{ float:left; width:175px;padding:5px 0px 0px 5px; height: 35px; line-height: 16px; overflow: hidden;}
+.hxcal{ overflow:hidden; height:14px; color: #cadffe; }
+#head2010 .logoetc .sea dt{ padding-right:0px;}
+#head2010 .logoetc .sea{ width:490px;}
+
+/*ÀÏ¶þ¼¶*/
+#secnav{  height:28px; border:1px solid #bebebe; border-bottom:0px; line-height:28px; padding-left:8px; overflow:hidden;}
+#secnav a{ padding:0px 6px;}
+
+
+
+
+/*20110901*/
+#navetc2011{ width:958px; margin:0px auto; overflow:hidden;height:48px; overflow:hidden; border:#bebebe 1px solid; border-bottom: none; }
+#navetc2011 a{ text-decoration:none;color:#000;}
+#navetc2011 a:hover{ text-decoration: underline; color:#900;}
+#navetc2011 .navL{ float:left; width:810px; }
+#navetc2011 .navL li{ float:left; height:40px; background:url(http://img.hexun.com/news/2010/img/line.gif) no-repeat right 0; line-height:20px; padding:5px 9px 0px 10px; list-style:none}
+#navetc2011 .navL li.end{ background:none; padding-right:0}
+#navetc2011 #enterhexun{ text-align: center; height: 22px; line-height: 20px; padding: 2px 0 0 0; border-top:1px solid #bebebe}
+#navetc2011 #enterhexun a{ color: #656565; display: inline-block; }
+#navetc2011 #hexunMember_nologinSetup_div_display_nologin{ border:1px solid #fff}
+#navetc2011 #enterhexun .tel{ background: url(http://img.hexun.com/news/2010/img/head2010.gif) no-repeat 0 -231px; padding: 2px 0 0 12px; }
+#navetc2011 #hexunMember_isloginedSetup_div_display{ border:1px solid #fff}
+#navetc2011 .navR{ float:right; width:130px; border-left:1px solid #bebebe;overflow: hidden;}
+#navetc2011 #hexunMember_isloginedSetup_span_display_username{ width: 72px; height: 20px; overflow: hidden; text-align: center; padding:0 0 0 8px; margin-right: 5px; }
+#head2010 .logoetc .date a{ color:#c7e1fc}
+
+
+/*201202*/
+#head2010 .logoetc .sea dd .inputbtn2,#head2010 .logoetc .sea dd .inputbtn3{ background:url(http://img.hexun.com/news/2010/img/head_but.gif) no-repeat 0 -31px; cursor: pointer; width: 52px; height: 21px; line-height: 21px; border: 0; text-align: center; color: #fff; font-size: 12px;}
+#head2010 .logoetc .sea dd .inputbtn3{background:url(http://img.hexun.com/news/2010/img/head_but.gif) no-repeat 0 -60px; width:66px}
