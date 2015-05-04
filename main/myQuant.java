@@ -81,7 +81,7 @@ public class myQuant {
 		List<Double> volume = new ArrayList<Double>();
 		int len = data.size();
 		for(int i=0;i<len;i++){
-//			System.out.println(data.toString());
+			System.out.println(data.toString());
 			close.add(data.get(i).getClose());
 			volume.add((double)data.get(i).getVolume());
 		}
