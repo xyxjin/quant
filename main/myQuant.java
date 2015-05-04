@@ -40,6 +40,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
+import analytics.HighLow;
 import model.BarSize;
 import model.TimePeriod;
 import dao.CapitalPoint;
@@ -66,13 +67,27 @@ public class myQuant {
 		//url ="http://gu.qq.com/sz150153";
 		//url = "http://web.ifzq.gtimg.cn/fund/newfund/fundInvesting/getInvesting?app=web&symbol=sz150153";
 //		System.out.println(httpQuery(url));
-		String body = httpQuery(url);
-		System.out.println(body.split("=")[1]);
+//		String body = httpQuery(url);
+//		System.out.println(body.split("=")[1]);
+//		
+//		JSONObject jsonObject = new JSONObject(body.split("=")[1]);
+//		System.out.println(jsonObject.getInt("total"));
+//		System.out.println(jsonObject.getString("data"));
 		
-		JSONObject jsonObject = new JSONObject(body.split("=")[1]);
-		System.out.println(jsonObject.getInt("total"));
-		System.out.println(jsonObject.getString("data"));
-		
+		Connection conn = StockDatebaseFactory.getInstance("test");
+		OHLCPointDao ohlcPointDao = new OHLCPointDao(conn);
+		List<IOHLCPoint> data = ohlcPointDao.findTicker("600030", TimePeriod.formatStringToDate("2014-12-1"), TimePeriod.formatStringToDate("2014-1-1"));
+		List<Double> close = new ArrayList<Double>();
+		List<Double> volume = new ArrayList<Double>();
+		int len = data.size();
+		for(int i=0;i<len;i++){
+//			System.out.println(data.toString());
+			close.add(data.get(i).getClose());
+			volume.add((double)data.get(i).getVolume());
+		}
+		List<Map<Integer, Double>> peaks = HighLow.peak_detection(close, 0.03);
+		System.out.println((peaks.get(0).toString()));
+		System.out.println(data.get(15).getClose());
 		/*
 		String fundStr = body.split("=")[4];
 		
