@@ -58,4 +58,8 @@ public class SimplePoint implements ISeriesPoint<Date, Double>, Serializable {
 		return getIndex();
 	}
 
+	@Override
+	public String toString() {
+		return value + "  ";
+	}
 }

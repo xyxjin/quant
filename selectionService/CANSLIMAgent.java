@@ -1,4 +1,4 @@
-package selection_service;
+package selectionService;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,7 +12,7 @@ import dao.IOHLCTimeSeries;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-public class CANSLIMAgent {
+public class CANSLIMAgent implements ISelectionAgent{
 	private static final int MAXIMUM_MAP_INDEX = 0;
 	private static final int MINIMUM_MAP_INDEX = 1;
 	private final String symbol;

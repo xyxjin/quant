@@ -20,19 +20,19 @@ import model.ISeriesPoint;
  * @param <A> type of the chart abscissa
  * @param <O> type of the chart ordinate
  */
-public interface IPatternFinder<A extends Comparable<A>, O extends Comparable<O>> {
+public interface IPatternFinder<A extends Comparable<A>, O extends Comparable<O>, T extends Comparable<T>> {
 	/**
 	 * Find the patterns in the time series from scratch
 	 * @return a list of patterns
 	 */
-	List<IPattern<A, O>> findPatterns();
+	List<IPattern<A, O, T>> findPatterns();
 	/**
 	 * Update the list of patterns based on the new point added.
 	 * This method allows optimisations in the pattern search algorithm
 	 * @param addedPoint the only point being added since the last pattern generation
 	 * @return a list of pattern
 	 */
-	List<IPattern<A, O>> findPatterns(ISeriesPoint<A, O> addedPoint);
+	List<IPattern<A, O, T>> findPatterns(ISeriesPoint<A, O> addedPoint);
 	/**
 	 * Update the list of patterns based on a modified point.
 	 * This method allows optimisations in the pattern search algorithm
@@ -40,5 +40,5 @@ public interface IPatternFinder<A extends Comparable<A>, O extends Comparable<O>
 	 * @param updatedPoint the only point been modified since the last pattern generation
 	 * @return a list of pattern
 	 */
-	List<IPattern<A, O>> findPatterns(ISeriesPoint<A, O> oldPoint, ISeriesPoint<A, O> updatedPoint);
+	List<IPattern<A, O, T>> findPatterns(ISeriesPoint<A, O> oldPoint, ISeriesPoint<A, O> updatedPoint);
 }

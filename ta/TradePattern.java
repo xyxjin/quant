@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import analytics.PatternType;
 import model.ISeriesPoint;
 import model.OrderSide;
 import model.SimplePoint;
@@ -20,7 +21,7 @@ import model.SimplePoint;
 /**
  * Pattern to show a trade onto a chart
  */
-public class TradePattern implements IPattern<Date, Double> {
+public class TradePattern implements IPattern<Date, Double, PatternType> {
 	private final Date executionTime;
 	private final OrderSide orderSide;
 	private final double executionPrice;
@@ -70,6 +71,12 @@ public class TradePattern implements IPattern<Date, Double> {
 
 	public int getAmount() {
 		return amount;
+	}
+
+	@Override
+	public PatternType getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

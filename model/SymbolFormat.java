@@ -2,7 +2,6 @@ package model;
 
 public class SymbolFormat {
 
-	@SuppressWarnings("unused")
 	public static String yahooSymbolFormat(String symbol){
 		if("600000".compareTo(symbol) <= 0){
             return symbol + ".SS";
@@ -11,7 +10,6 @@ public class SymbolFormat {
         }
 	}
 	
-	@SuppressWarnings("unused")
 	public static String tencentSymbolFormat(String symbol){
 		if(symbol.length()>6){
 			return symbol;

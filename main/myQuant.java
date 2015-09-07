@@ -37,15 +37,31 @@ import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import signal.technical.movingaverage.EMA;
+import signal.technical.movingaverage.MACD;
+import ta.IPattern;
+import util.LoggerUtils;
 import analytics.HighLow;
+import analytics.PatternDown;
+import analytics.PatternM;
+import analytics.PatternType;
+import analytics.PatternUp;
+import analytics.PatternW;
+import analytics.TrendMode;
 import model.BarSize;
+import model.ISeriesPoint;
+import model.SimplePoint;
+import model.SymbolFormat;
 import model.TimePeriod;
 import dao.CapitalPoint;
 import dao.IOHLCPoint;
@@ -60,18 +76,173 @@ import Tencent.HushenMarket;
 import java.net.URLEncoder;
 
 public class myQuant {
-	
+	Logger logger;
 	public static void main(String[] args)  throws Exception{
 		String url = "http://fund.10jqka.com.cn/550002/allocation.html";
 		url = "http://fund.10jqka.com.cn/550002/stock.html";
 		url = "http://stockqt.gtimg.cn/cgi-bin/hcenter/q?id=501";
 		url = "http://stock.gtimg.cn/data/index.php?appn=rank&t=rankclosefund/chr";
+		url = "http://www.sse.com.cn/assortment/stock/list/stockdetails/capital/index.shtml?COMPANY_CODE=600023";
+		url = "http://query.sse.com.cn/security/stock/queryCompanyStockStruct.do?jsonCallBack=jsonpCallback47687642&isPagination=false&companyCode=600023&_=1432811161532";
+		url = "http://gu.qq.com/sstock/quotpage/q/600023.htm#7";
+		url = "http://stockpage.10jqka.com.cn/600837/holder/";
+	
+		TencentFundZhongcang task = new TencentFundZhongcang("fund");
+		task.run();
+	
+		
+/*		Logger logger = LoggerUtils.getLogger(LoggerUtils.path);
+		Connection connection = StockDatebaseFactory.getInstance("test");
+		HushenMarket market = new HushenMarket(connection);
+		Set<String> quotes = market.findAll();*/
+		
+//		String[] quotes = {"300027"};
+		
+		/*
+		ExecutorService pool = Executors.newFixedThreadPool(100);
+		
+		for(String symbol : quotes){
+			logger.info("Tencent real quote has been created for " + SymbolFormat.tencentSymbolFormat(symbol));
+			TencentRealTimeThread t = new TencentRealTimeThread("tencentreal", SymbolFormat.tencentSymbolFormat(symbol));
+			pool.execute(t);
+		}
+		pool.shutdown();
+		System.out.println("done!!!!!!!!!!!!!!!!!!!");
+		*/
+/*
+		ExecutorService pool2 = Executors.newFixedThreadPool(100);
+		for(String symbol : quotes){
+			logger.info("Yahoo history quote has been created for " + SymbolFormat.tencentSymbolFormat(symbol));
+			YahooHistoricalThread t = new YahooHistoricalThread("test", symbol);
+			pool2.execute(t);
+		}
+		pool2.shutdown();
+		System.out.println("done!!!!!!!!!!!!!!!!!!!");
+*/
+		
+//		String symbol = "sh600030";
+//		TencentRealTimeThread rl = new TencentRealTimeThread("tencentreal", symbol);
+//		rl.run();
+		
+//		YahooHistoricalThread zxzq = new YahooHistoricalThread("test", symbol);
+//		zxzq.run();
+//		
+		
+		/*
+		Connection connection = StockDatebaseFactory.getInstance("test");
+		OHLCPointDao ohlcPointDao = new OHLCPointDao(connection);
+		Date endDateTime = TimePeriod.formatStringToDate("2015-06-19");
+		Date startDateTime = TimePeriod.formatStringToDate("2003-01-01");
+		
+		List<IOHLCPoint> data = ohlcPointDao.findTicker(symbol, endDateTime, startDateTime);
+		
+		int len = data.size();
+		System.out.println(len);
+		List<ISeriesPoint<Date, Double>> points = new ArrayList<ISeriesPoint<Date, Double>>();
+		*/
+		
+		/*
+		EMA ema18 = new EMA(18);
+		EMA ema30 = new EMA(55);
+		MACD macd = new MACD(18,30,9);
+		for(int i=0; i<data.size(); i++){
+			points.add(new SimplePoint(data.get(i).getIndex(), data.get(i).getAdjClose()));
+//			ema18.update(new DateTime(), data.get(i).getClose());
+//			ema30.update(new DateTime(), data.get(i).getClose());
+//			System.out.println(ema18.value());
+//			System.out.println(ema30.value());
+			macd.update(new DateTime(), data.get(i).getAdjClose());
+			System.out.println(macd.toString());
+		}
+		*/
+		
+		/*
+		for(int i=0; i<data.size(); i++){
+			points.add(new SimplePoint(data.get(i).getIndex(), data.get(i).getAdjClose()));
+		}
+		List<ISeriesPoint<Date, Double>> map_peaks = new ArrayList<ISeriesPoint<Date, Double>>();
+		map_peaks = HighLow.peak_detection(points, 0.07);
+		
+		System.out.println(map_peaks.size());
+		System.out.println(map_peaks.toString());
+		
+		PatternW w = new PatternW(0.03, 0.07, 0.00);
+		PatternM m = new PatternM(0.03, 0.07, 0.00);
+		PatternDown down = new PatternDown(0.13, 0.07, 0.13);
+		PatternUp up = new PatternUp(0.13, 0.03, 0.13);
+		IPattern<Date, Double, PatternType> found;
+		List<IPattern<Date, Double, PatternType>> pattern = new ArrayList<IPattern<Date, Double, PatternType>>();
+		for(int i=0; i<map_peaks.size()-3;){
+//		for(int i=7; i<8;){
+			found = w.findPattern(map_peaks.subList(i, i+PatternW.PATTERN_LEN));
+			if(found.getType() != PatternType.NONE){
+				i = i + 2;
+				pattern.add(found);
+//				System.out.println(found.getType());
+				continue;
+			}
+			found = m.findPattern(map_peaks.subList(i, i+PatternW.PATTERN_LEN));
+			if(found.getType() != PatternType.NONE){
+				i = i + 2;
+				pattern.add(found);
+//				System.out.println(found.getType());
+				continue;
+			}
+			found = down.findPattern(map_peaks.subList(i, i+PatternW.PATTERN_LEN));
+			if(found.getType() != PatternType.NONE){
+				i = i + 2;
+				pattern.add(found);
+//				System.out.println(found.getType());
+				continue;
+			}
+			found = up.findPattern(map_peaks.subList(i, i+PatternW.PATTERN_LEN));
+			if(found.getType() != PatternType.NONE){
+				i = i + 2;
+				pattern.add(found);
+//				System.out.println(found.getType());
+				continue;
+			}
+			i = i + 1;
+		}
+		
+		System.out.println(pattern.toString());
+		
+		*/
+		
+//		List<ISeriesPoint<Date, Double>> peaks = new ArrayList<ISeriesPoint<Date, Double>>();
 //		url = "http://stock.gtimg.cn/data/index.php?appn=rank&t=ranketf/chr&p=1";
 //		url = "http://stock.gtimg.cn/data/index.php?appn=rank&t=ranklof/chr&p=1";
-		//url ="http://gu.qq.com/sz150153";
+		//url ="http://gu.qq.com/jj470098";
 		//url = "http://web.ifzq.gtimg.cn/fund/newfund/fundInvesting/getInvesting?app=web&symbol=sz150153";
 //		System.out.println(httpQuery(url));
-		String body = httpQuery(url);
+//		String body = httpQuery(url);
+//		BufferedWriter  writer = new BufferedWriter(new FileWriter("input.html"));
+//	    writer.write(body);
+//	    writer.close();
+//	    
+//		double shareInfo[][] = new double[6][7];
+//		File input = new File("input.html");
+//		Document doc = Jsoup.parse(input, "gbk", "http://q.10jqka.com.cn/");
+//		Elements stockcapit = doc.select("#stockcapit").select("tr");
+//		System.out.println(stockcapit.size());
+//		for(int i=1; i<stockcapit.size()-1; i++){
+//			Elements items = stockcapit.get(i).select("td");
+//			int times = 0;
+//			for(Element td : items){
+//				if("-".equals(td.html()))
+//					shareInfo[times][i-1] = 0.0;
+//				else
+//					shareInfo[times][i-1] = Double.valueOf(td.html());
+//				times++;
+//			}
+//		}
+//		for(int i=0; i<6; i++)
+//			for(int j=0; j<7; j++){
+//				System.out.println(shareInfo[i][j]);
+//			}
+		
+//		System.out.println(shareInfo);
+//		System.out.println(body);
 //		String body = "v_tpage=\"18\";v_cpage=\"2\";v_csort=\"1_1\"; v_hq_info=\"tt\"";
 //		System.out.println(body.split(";")[0].split("=")[1]);
 //		Pattern p = Pattern.compile("\"([^\"\"]+)\"");
@@ -90,11 +261,11 @@ public class myQuant {
 //		}
 
 		
-		System.out.println(body.split("=")[1]);
-		
-		JSONObject jsonObject = new JSONObject(body.split("=")[1]);
-		System.out.println(jsonObject.getInt("total"));
-		System.out.println(jsonObject.getString("data"));
+//		System.out.println(body.split("=")[1]);
+//		
+//		JSONObject jsonObject = new JSONObject(body.split("=")[1]);
+//		System.out.println(jsonObject.getInt("total"));
+//		System.out.println(jsonObject.getString("data"));
 		
 //		Connection conn = StockDatebaseFactory.getInstance("test");
 //		OHLCPointDao ohlcPointDao = new OHLCPointDao(conn);
@@ -251,21 +422,7 @@ public class myQuant {
 		pool.shutdown();
 		System.out.println("done!!!!!!!!!!!!!!!!!!!");
 		*/
-		/*
-		Connection connection = StockDatebaseFactory.getInstance("test");
-		HushenMarket market = new HushenMarket(connection);
-		Set<String> quotes = market.findAll();
-		//String[] quotes = {"600030","000723","000725","000726","000727","000728","000729","002100","000720","000721","000722","002607","600400","600401","002606","002605","002604","002609","002608","002603"};
-		//System.out.println(quotes.length + quotes.toString());
-		ExecutorService pool = Executors.newFixedThreadPool(100);
-		for(String symbol : quotes){
-			YahooHistoricalThread t = new YahooHistoricalThread("test", symbol);
-			pool.execute(t);
-			System.out.println(symbol);
-		}
-		pool.shutdown();
-		System.out.println("done!!!!!!!!!!!!!!!!!!!");
-		*/
+
 		/*
 		TencentAdapterComponent adapter = new TencentAdapterComponent();
 		CapitalPoint point = adapter.latestQuotation("sz000858");

@@ -21,6 +21,9 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
+import util.LoggerUtils;
 import model.BarSize;
 import model.TimePeriod;
 import dao.IOHLCPoint;
@@ -32,9 +35,11 @@ public class OHLCPointDao implements IOHLCPointDao {
 			" P_OPEN, P_HIGH, P_LOW, P_CLOSE, VOLUME, P_ADJ_CLOSE, P_WAP, TICK_COUNT, LAST_UPDATE";
 	public static final String INSERT_FIELDS = "SDB_ID, " + SELECT_FIELDS;
 	private final Connection connection;
+	private Logger logger;
 	
 	public OHLCPointDao(Connection connection) {
 		this.connection = connection;
+		this.logger = LoggerUtils.getLogger(LoggerUtils.path);
 	}
 
 	//String tableName
@@ -94,6 +99,7 @@ public class OHLCPointDao implements IOHLCPointDao {
 			stmt.setNull(12, Types.TIMESTAMP);
 		}
 		stmt.execute();
+		logger.debug(stmt.toString());
 	}
 
 	@Override

@@ -23,7 +23,9 @@
 package signal.technical;
 
 //import com.numericalmethod.algoquant.model.signal.timed.TimedSignal;
+import signal.timed.TimedSignal;
 import util.MovingWindowBySize;
+
 //import com.numericalmethod.algoquant.util.OneDaySpan;
 //import com.numericalmethod.suanshu.number.DoubleUtils;
 //import com.numericalmethod.suanshu.stats.descriptive.moment.Mean;
@@ -38,7 +40,7 @@ import org.joda.time.LocalTime;
  */
 public class AverageDailyMovement implements TimedSignal<Double, Double> {
 
-    private final OneDaySpan oneDaySpan;
+    private final LocalTime oneDaySpan;
     private final MovingWindowBySize<Double> window;
     private DateTime currentDay = null;
     private double dailyHigh = Double.NEGATIVE_INFINITY;
@@ -51,7 +53,7 @@ public class AverageDailyMovement implements TimedSignal<Double, Double> {
      * @param size         the size of the moving window
      */
     public AverageDailyMovement(LocalTime dayStartTime, int size) {
-        this.oneDaySpan = new OneDaySpan(dayStartTime);
+        this.oneDaySpan = dayStartTime;
         this.window = new MovingWindowBySize<>(size);
     }
 

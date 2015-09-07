@@ -18,7 +18,8 @@ import model.ISeriesPoint;
  * @param <A> type of the abscissa in the chart
  * @param <O> type of the ordinate in the chart
  */
-public interface IPattern<A extends Comparable<A>, O extends Comparable<O>> {
+public interface IPattern<A extends Comparable<A>, O extends Comparable<O>, T extends Comparable<T>> {
+	T getType();
 	A getBeginIndex();
 	A getEndIndex();
 	List<ISeriesPoint<A, O>> getPoints();

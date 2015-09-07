@@ -1,5 +1,4 @@
 package Tencent;
-import org.joda.time.LocalDate;
 
 public class FundStocks implements IFund{
 	String symbol;

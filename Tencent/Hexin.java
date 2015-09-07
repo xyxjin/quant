@@ -10,12 +10,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -53,7 +48,7 @@ public class Hexin {
 	}
 
 	protected Document fetchHtmlDoc(String url) throws ConnectException, HttpException, IOException {
-		String html = httpQuery(url);
+		String html = util.HttpUtil.httpQuery(url);
 		//System.out.println(html);
 		BufferedWriter  writer = new BufferedWriter(new FileWriter("input.html"));
 		writer.write(html);
@@ -102,27 +97,5 @@ public class Hexin {
 	         mainStr = mainStr.substring(mainStr.indexOf(subStr) + subStr.length());  
 	    }  
 	    return time;  
-	}
-	
-	protected String httpQuery(String url) throws ConnectException, HttpException, IOException {
-		HttpClient client = new HttpClient();
-		//String proxyHost = System.getProperty(PROXY_HOST_PROPERTY_KEY);
-		//String proxyPort = System.getProperty(PROXY_PORT_PROPERTY_KEY);
-		//String proxyHost = "87.254.212.120";
-		//String proxyPort = "8080";
-		String proxyHost = null;
-		String proxyPort = null;
-		HostConfiguration config = new HostConfiguration();
-		if (proxyHost != null && proxyPort != null) {
-			int port = Integer.parseInt(proxyPort);
-			config.setProxy(proxyHost, port);
-		}
-		HttpMethod method = new GetMethod(url);
-		int statusCode = client.executeMethod(config, method);
-	    if (statusCode != HttpStatus.SC_OK) {
-	      throw new ConnectException("Query to " + url + " failed [" + method.getStatusLine() + "]");
-	    }
-		byte[] responseBody = method.getResponseBody();
-		return new String(responseBody);
 	}
 }

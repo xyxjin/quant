@@ -12,8 +12,6 @@ package dao;
 import java.io.Serializable;
 import java.util.Date;
 
-import model.DataType;
-
 /**
  * Implementation of {@link ITickPoint}
  */

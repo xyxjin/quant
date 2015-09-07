@@ -15,11 +15,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -27,6 +26,8 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 
+import util.HttpUtil;
+import util.LoggerUtils;
 import model.RequestFailedException;
 import model.BarSize;
 import model.DataType;
@@ -40,7 +41,7 @@ import dao.IOHLCPoint;
 import dao.OHLCPoint;
 
 public class YahooFinanceAdapterComponent implements IMarketDataProvider {
-	private static final Logger logger = Logger.getLogger("YahooFinanceAdapterComponent");
+	//private static final Logger logger = Logger.getLogger("YahooFinanceAdapterComponent");
 	private static final String YAHOO_TICKER_QUERY_URL = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=%s&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
 	private static final String YAHOO_STOCK_QUERY_URL = "http://finance.yahoo.com/q?s=%s";
 	private static final String YAHOO_STOCK_PRICES_QUERY_URL = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%s&f=%d&g=%s&ignore=.csv";
@@ -53,16 +54,14 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 	private static final String YAHOO_DESCRIPTION_KEY = "name";
 	private static final String YAHOO_BROKER_ID = "Yahoo!";
 	private static final String URL_ENCODING_ENCODING = "UTF-8";
-	private static final String PROXY_HOST_PROPERTY_KEY = "http.proxy.host";
-	private static final String PROXY_PORT_PROPERTY_KEY = "http.proxy.port";
-	
 	private final Pattern STOCK_CURRENCY_PATTERN = Pattern.compile(".*Currency in (...)\\..*", Pattern.DOTALL);
+	private Logger logger;
 
 	// Assume all times in UTC for simplicity, as max data resolution is daily anyway
 	public static final TimeZone YAHOO_FINANCE_TIMEZONE = TimeZone.getTimeZone("UTC");
 
 	public YahooFinanceAdapterComponent(){
-		logger.setLevel(Level.OFF);
+		this.logger = LoggerUtils.getLogger(LoggerUtils.path);
 	}
 	
 	@Override
@@ -101,13 +100,13 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		}
 		String stockId = addMarketNameToSymbol(quotedSymbol);
 		String queryUrl = String.format(YAHOO_TICKER_QUERY_URL, stockId);
-		logger.log(Level.INFO, "Query Yahoo!Finance for tickers: " + queryUrl);
+		logger.info("Query Yahoo!Finance for tickers: " + queryUrl);
 		JSON response = null;
 		try {
-			String responseString = httpQuery(queryUrl);
+			String responseString = HttpUtil.httpQuery(queryUrl);
 			String jsonResponse = responseString.replace("YAHOO.Finance.SymbolSuggest.ssCallback(", "").replace(")","");
 			Reader responseReader = new StringReader(jsonResponse);
-			logger.log(Level.FINE, "Response from Yahoo!Finance: " + jsonResponse);
+			logger.debug("Response from Yahoo!Finance: " + jsonResponse);
 			response = JSON.parse(responseReader); 
 		} catch (IOException e) {
 			throw new ConnectException("Exception while connecting to: " + queryUrl + " [" + e.getMessage() + "]");
@@ -119,13 +118,13 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		List<IContract> contractList = new LinkedList<IContract>();
 		for (JSON security : securityList) {
 			String ticker = (String) security.get(YAHOO_SYMBOL_KEY).getValue();
-			logger.log(Level.INFO, "Query information about stock: " + ticker);
+			logger.debug("Query information about stock: " + ticker);
 			Currency stockCurrency = null;
 			try {
 				StockInfo stockInfo = getStockInfo(ticker);
 				stockCurrency = stockInfo.currency;
 			} catch (Exception e) {
-				logger.log(Level.SEVERE, "Exception while querying currency for: " + ticker, e);
+				logger.debug("Exception while querying currency for: " + ticker, e);
 				continue;
 			}
 			if (criteria.getCurrency() != null && !criteria.getCurrency().equals(stockCurrency)) {
@@ -198,15 +197,15 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		String stockId = addMarketNameToSymbol(quotedSymbol);
 		String queryUrl = String.format(YAHOO_STOCK_PRICES_QUERY_URL, stockId, startMonth, startDay, startYear,
 				endMonth, endDay, endYear, encodeBarSize(barSize));
-		logger.log(Level.INFO, "Query Yahoo!Finance for historical prices: " + queryUrl);
+		logger.info("Query Yahoo!Finance for historical prices: " + queryUrl);
 		String responseString;
 		try {
-			responseString = httpQuery(queryUrl);
+			responseString = HttpUtil.httpQuery(queryUrl);
 		} catch (IOException e) {
 			throw new ConnectException("Exception while connecting to: " + queryUrl + " [" + e.getMessage() + "]");
 		}
 		String[] lines = responseString.split("\\n");
-		logger.log(Level.INFO, "Received " + (lines.length - 1) + " lines");
+		logger.debug("Received " + (lines.length - 1) + " lines");
 		if (!lines[0].equals(YAHOO_STOCK_PRICES_HEADER)) {
 			throw new RequestFailedException("Response format not recognized: " + responseString.substring(0, 200) + "...");
 		}
@@ -214,9 +213,9 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		DateFormat dateFormat = new SimpleDateFormat(YAHOO_STOCK_PRICES_DATE_FORMAT);
 		for (int lineNo = lines.length - 1; lineNo > 0; lineNo--) { // Yahoo! returns prices in reverse chronological order
 			try {
-				logger.log(Level.INFO, "Processing line " + lineNo + ": " + lines[lineNo]);
+				logger.debug("Processing line " + lineNo + ": " + lines[lineNo]);
 				IOHLCPoint point = parsePriceLine(lines[lineNo], barSize, dateFormat);
-				logger.log(Level.INFO, "Adding point" + point);
+				logger.debug("Adding point" + point);
 				points.add(point);
 			} catch (ParseException e) {
 				throw new RequestFailedException("Error while parsing line: " + lineNo, e);
@@ -285,7 +284,7 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		}
 		String stockId = addMarketNameToSymbol(quotedSymbol);
 		String queryUrl = String.format(YAHOO_STOCK_QUERY_URL, stockId);
-		String responseString = httpQuery(queryUrl);
+		String responseString = HttpUtil.httpQuery(queryUrl);
 		Matcher m = STOCK_CURRENCY_PATTERN.matcher(responseString);
 		if (!m.matches()) {
 			throw new IOException("HTTP response doesn't match currency pattern: " + responseString);
@@ -304,7 +303,7 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
 		//String proxyPort = null;
 		HostConfiguration config = new HostConfiguration();
 		if (proxyHost != null && proxyPort != null) {
-			logger.log(Level.INFO, "Accessing HTTP Yahoo! API via proxy: " + proxyHost + ":" + proxyPort);
+			logger.debug("Accessing HTTP Yahoo! API via proxy: " + proxyHost + ":" + proxyPort);
 			int port = Integer.parseInt(proxyPort);
 			config.setProxy(proxyHost, port);
 		}

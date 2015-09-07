@@ -21,24 +21,23 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import model.BarSize;
+import org.apache.log4j.Logger;
+
+import util.LoggerUtils;
 import model.TimePeriod;
-import dao.IOHLCPoint;
-import dao.OHLCPoint;
 
 public class CapitalPointDao implements ICapitalPointDao {
 	public static final String TABLE_NAME_SUFFIX = "CAPITAL";
-	public static final String SELECT_FIELDS = "BAR_SIZE, DATE_TIME," +
-			" P_OPEN, P_HIGH, P_LOW, P_CLOSE, VOLUME, P_ADJ_CLOSE, P_WAP, TICK_COUNT, LAST_UPDATE";
+	public static final String SELECT_FIELDS = "DATE_TIME, MAIN_INFLOW, MAIN_OUTFLOW, MAIN_NETFLOW, MAIN_RATE, RETAIL_INFLOW, RETAIL_OUTFLOW, RETAIL_NETFLOW, RETAIL_RATE, VOLUME, P_PRICE, TURNOVER_RATE, PER, MARKET_VALUE, TATAL_VALUE, PBR, LAST_UPDATE";
 	public static final String INSERT_FIELDS = "SDB_ID, " + SELECT_FIELDS;
 	private final Connection connection;
-	private final String stockDatabaseId;
 	private final String tableName;
+	private Logger logger;
 	
 	public CapitalPointDao(Connection connection, String stockDatabaseId) {
 		this.connection = connection;
-		this.stockDatabaseId = stockDatabaseId;
-		this.tableName = stockDatabaseId.replace(".", "_") + "_" + TABLE_NAME_SUFFIX;;
+		this.tableName = stockDatabaseId.replace(".", "_") + "_" + TABLE_NAME_SUFFIX;
+		this.logger = LoggerUtils.getLogger(LoggerUtils.path);
 	}
 
 	//String tableName
@@ -50,7 +49,7 @@ public class CapitalPointDao implements ICapitalPointDao {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()){
 			if (tableName.equalsIgnoreCase(rs.getString(1))){
-				System.out.println(rs.getString(1));
+				logger.info("Tencent Realtime quote table " + tableName + " create.");
 				numberOfTables++;
 			}
 		}
@@ -66,28 +65,26 @@ public class CapitalPointDao implements ICapitalPointDao {
 					"RETAIL_INFLOW DECIMAL(30,10)," +
 					"RETAIL_OUTFLOW DECIMAL(30,10)," +
 					"RETAIL_NETFLOW DECIMAL(30,10)," +
-					"RETAIL_RATE DECIMAL(30,10)," +
+					"RETAIL_RATE DECIMAL(30,3)," +
 					"VOLUME DECIMAL(30,10)," +
-					"P_PRICE DECIMAL(30,10)," +
+					"P_PRICE DECIMAL(30,3)," +
 					"TURNOVER_RATE DECIMAL(30,10)," +
-					"PER DECIMAL(30,10)," +
+					"PER DECIMAL(30,3)," +
 					"MARKET_VALUE DECIMAL(30,10)," +
 					"TATAL_VALUE DECIMAL(30,10),"+
 					"PBR DECIMAL(30,10)," +
 					"LAST_UPDATE TIMESTAMP)");
-			System.out.println(stmt.toString());
+			//System.out.println(stmt.toString());
+			logger.debug("Realtime price save operation: " + stmt.toString());
 			stmt.execute();
 			connection.commit();
 		}
 		rs.close();
 	}
 
-
-	
-	
 	@Override
 	public void save(String stockDatabaseId, ICapitalPoint item) throws SQLException {
-		PreparedStatement stmt = connection.prepareStatement("INSERT INTO " + stockDatabaseId.replace(".", "_") +
+		PreparedStatement stmt = connection.prepareStatement("INSERT INTO " + tableName +
 				" (" + INSERT_FIELDS + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		stmt.setString(1, stockDatabaseId);
 		stmt.setTimestamp(2, new Timestamp(item.getIndex().getTime()));
@@ -111,6 +108,7 @@ public class CapitalPointDao implements ICapitalPointDao {
 		} else {
 			stmt.setNull(18, Types.TIMESTAMP);
 		}
+//		System.out.println(stmt.toString());
 		stmt.execute();
 	}
 
