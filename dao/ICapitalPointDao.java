@@ -14,8 +14,8 @@ import java.util.List;
 
 
 public interface ICapitalPointDao extends IFlushable, IDbInitializable {
-	void save(String stockDatabaseId, ICapitalPoint item) throws SQLException;
-	void update(String stockDatabaseId, ICapitalPoint existingItem, ICapitalPoint newItem) throws SQLException;
-	List<ICapitalPoint> find(String stockDatabaseId) throws SQLException;
-	void deleteAll(String stockDatabaseId) throws SQLException;
+	void save(ICapitalPoint item) throws SQLException;
+	void update(ICapitalPoint existingItem, ICapitalPoint newItem) throws SQLException;
+	void deleteAll() throws SQLException;
+    List<ICapitalPoint> findall() throws SQLException;
 }

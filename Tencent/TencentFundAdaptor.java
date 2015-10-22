@@ -93,7 +93,7 @@ class scrapySingleFund implements java.lang.Runnable
 				stocks.add(stock);
 			}
 		} catch (JSONException e) {
-			logger.warn("Parse fund " + symbol + " failed with error info " + e);
+			logger.error("Parse fund " + symbol + " failed with error info " + e);
 		}
 		return stocks;
 	}
@@ -143,7 +143,7 @@ public class TencentFundAdaptor {
 		
 		for(String fund : funds){
 			url = fundDetailBaseUrl + fund;
-			logger.info("scrapy fund stocks: " + url);
+			logger.warn("scrapy fund stocks: " + url);
 			scrapySingleFund t = new scrapySingleFund(url, stocks);
         	future[i++] = threadExecutor.submit(t);
 		}

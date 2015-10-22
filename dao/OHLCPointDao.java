@@ -42,7 +42,6 @@ public class OHLCPointDao implements IOHLCPointDao {
 		this.logger = LoggerUtils.getLogger(LoggerUtils.path);
 	}
 
-	//String tableName
 	@Override
 	public void initDb(String tableName) throws SQLException {
 		PreparedStatement stmt;
@@ -52,7 +51,6 @@ public class OHLCPointDao implements IOHLCPointDao {
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()){
 			if (tableName.equalsIgnoreCase(rs.getString(1))){
-				//System.out.println(rs.getString(1));
 				numberOfTables++;
 			}
 		}
@@ -99,7 +97,7 @@ public class OHLCPointDao implements IOHLCPointDao {
 			stmt.setNull(12, Types.TIMESTAMP);
 		}
 		stmt.execute();
-		logger.debug(stmt.toString());
+		logger.info(stmt.toString());
 	}
 
 	@Override
