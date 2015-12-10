@@ -44,4 +44,10 @@ public class TencenRealtimeStock implements IGeneralAPI {
         }
         logger.info("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes exit!");
     }
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+        
+    }
 }

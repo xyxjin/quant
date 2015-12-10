@@ -68,12 +68,14 @@ public class YahooHistoricalThread implements Runnable {
                 ohlcPointDao.flush();
                 logger.info("YahooHistoricalThread::run: Yahoo history save successfully for stock " + stockId);
             }
-        } catch (SQLException e) {
+        } catch (SQLException | NullPointerException e) {
             logger.warn("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " SQL operation failure with error info " + e.toString());
-        } finally {
+        }
+        finally {
             try {
                 connection.close();
-            } catch (SQLException e) {
+                logger.info("YahooHistoricalThread::run: Yahoo history thread close the jdbc connection!");
+            } catch (SQLException | NullPointerException e) {
                 logger.warn("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " close SQL db operation failure with error info " + e.toString());
             }
         }

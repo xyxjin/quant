@@ -12,7 +12,7 @@ public class ConfigPropValue {
 
         Properties prop = new Properties();
         String propFileName = "config.properties";
-        inputStream = LoggerUtils.class.getClassLoader().getResourceAsStream(propFileName);
+        inputStream = ConfigPropValue.class.getClassLoader().getResourceAsStream(propFileName);
         if (inputStream != null) {
             prop.load(inputStream);
         } else {
