@@ -10,10 +10,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.pureblue.quant.util.ConfigPropValue;
+import com.pureblue.quant.util.HttpUtil;
+import com.pureblue.quant.util.LoggerUtils;
+
 public class HexinIndustryAdaptor extends Hexin{
 	private static final String baseUrl = "http://q.10jqka.com.cn/stock/thshy";
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws IOException{
+	    
+        String value;
+        value = ConfigPropValue.getPropValue(LoggerUtils.LOG_LEVEL_PROPERTY_KEY);
+        System.setProperty(LoggerUtils.LOG_LEVEL_PROPERTY_KEY, value);
+        value = ConfigPropValue.getPropValue(HttpUtil.PROXY_HOST_PROPERTY_KEY);
+        System.setProperty(HttpUtil.PROXY_HOST_PROPERTY_KEY, value);
+        value = ConfigPropValue.getPropValue(HttpUtil.PROXY_PORT_PROPERTY_KEY);
+        System.setProperty(HttpUtil.PROXY_PORT_PROPERTY_KEY, value);
+        
 		int num = (int) Math.ceil((double)100/50);
 		System.out.println(num);
 		

@@ -33,6 +33,7 @@ public class HushenMarket {
         int numberOfTables = 0;
         stmt = connection.prepareStatement("SHOW TABLES");
         ResultSet rs = stmt.executeQuery();
+        
         while (rs.next()) {
             if (tableName.equalsIgnoreCase(rs.getString(1))) {
                 numberOfTables++;
@@ -43,6 +44,7 @@ public class HushenMarket {
             stmt = connection.prepareStatement("CREATE TABLE " + tableName + " (SDB_ID VARCHAR(200))");
             stmt.execute();
             flush();
+            importMarket();
             logger.info("HushenMarket::initDb: init hushen all market stock id db table create successfully.");
         } else
             deleteAll();

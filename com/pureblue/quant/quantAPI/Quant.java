@@ -106,18 +106,26 @@ public class Quant {
         System.setProperty(HttpUtil.PROXY_PORT_PROPERTY_KEY, value);
 
 //        Logger logger = LoggerUtils.getLogger(LoggerUtils.path);
+        String database = "yahooquotes";
         Logger logger = Logger.getLogger(Quant.class);
         
         logger.fatal("Quant::Main: connect to SQL database failure.");
 
-        Connection connection = StockDatebaseFactory.getInstance("test");
+        Connection connection = StockDatebaseFactory.getInstance(database);
         if (null == connection) {
             logger.fatal("Quant::Main: connect to SQL database failure.");
             return;
         }
-        HushenMarket market = new HushenMarket(connection);
-        Set<String> quotes = market.findAll();
+//        HushenMarket market = new HushenMarket(connection);
+//        try {
+//            market.initDb();
+//        } catch (SQLException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//        Set<String> quotes = market.findAll();
 
+        /*
         int index = 0;
         System.out.println("list symbols:");
         for (String symbol : quotes) {
@@ -126,9 +134,14 @@ public class Quant {
             if (index % 10 == 0)
                 System.out.println();
         }
-/*
-//        ArrayList<String> quotes = new ArrayList<String>();
-//        quotes.add("000504");
+        TencenRealtimeStock realupdate = new TencenRealtimeStock();
+        realupdate.fetchActions();
+        */
+        
+        
+
+        ArrayList<String> quotes = new ArrayList<String>();
+        quotes.add("600031");
         ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
 //        ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
 
@@ -146,12 +159,16 @@ public class Quant {
             logger.fatal("Tencent real quote has been timeout!!");
         }  
         System.out.println("done!!!!!!!!!!!!!!!!!!!");
-*/
+
+//        ArrayList<String> quotes = new ArrayList<String>();
+//        quotes.add("000001");
+        
+        /*
         ThreadPoolExecutor pool2 = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
         for (String symbol : quotes) {
             logger.info("Yahoo history quote has been created for "
                     + SymbolFormat.tencentSymbolFormat(symbol));
-            YahooHistoricalThread t = new YahooHistoricalThread("test", symbol);
+            YahooHistoricalThread t = new YahooHistoricalThread(database, symbol);
             pool2.execute(t);
         }
         pool2.shutdown();
@@ -163,7 +180,8 @@ public class Quant {
             logger.fatal("Yahoo history quote has been timeout!!");
         }
         System.out.println("done!!!!!!!!!!!!!!!!!!!");
-
+        */
+        
         // String symbol = "sh600030";
         // TencentRealTimeThread rl = new TencentRealTimeThread("tencentreal",
         // symbol);
@@ -172,7 +190,8 @@ public class Quant {
         // YahooHistoricalThread zxzq = new YahooHistoricalThread("test",
         // symbol);
         // zxzq.run();
-        //
+        //java.lang.OutOfMemoryError: GC overhead limit exceeded
+        //http://www.eclipse.org/mat/
 
         /*
          * Connection connection = StockDatebaseFactory.getInstance("test");

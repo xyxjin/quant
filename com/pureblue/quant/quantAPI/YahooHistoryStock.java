@@ -16,16 +16,22 @@ import com.pureblue.quant.TencentAPI.HushenMarket;
 import com.pureblue.quant.dao.StockDatebaseFactory;
 
 public class YahooHistoryStock implements IGeneralAPI {
-    static ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newCachedThreadPool();
-    static Collection<YahooHistoricalThread> threadArray = new ArrayList<YahooHistoricalThread>();
-    Logger logger;
     
-    public YahooHistoryStock() {
+    private ThreadPoolExecutor pool = null;
+    private int poolSize = 0;
+    private Collection<YahooHistoricalThread> threadArray;
+    private Logger logger = null;   
+    
+    public YahooHistoryStock(int poolSize) {
+        super();
+        this.setPoolSize(poolSize);
+        this.pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize);
+        this.threadArray  = new ArrayList<YahooHistoricalThread>();
         this.logger = Logger.getLogger(getClass());
     }
     public void fetchActions() {
-        logger.info("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes entry.");
-        Connection connection = StockDatebaseFactory.getInstance("test");
+        logger.debug("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes entry.");
+        Connection connection = StockDatebaseFactory.getInstance("YahooQuotes");
         if (null == connection) {
             logger.fatal("YahooHistoryStock::fetchActions: connect to SQL database failure.");
             return;
@@ -41,11 +47,11 @@ public class YahooHistoryStock implements IGeneralAPI {
         }
 
         for (String symbol : quotes) {
-            YahooHistoricalThread t = new YahooHistoricalThread("test", symbol);
+            YahooHistoricalThread t = new YahooHistoricalThread("YahooQuotes", symbol);
             threadArray.add(t);
             pool.execute(t);
         }
-        logger.info("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes exit!");
+        logger.debug("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes exit!");
     }
     public void pending() {
         logger.info("YahooHistoryStock::pending entry.");
@@ -71,5 +77,11 @@ public class YahooHistoryStock implements IGeneralAPI {
             pool.remove(iter.next());
         }
         logger.info("YahooHistoryStock::stop exit.");
+    }
+    public int getPoolSize() {
+        return poolSize;
+    }
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 }

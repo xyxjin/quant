@@ -1,6 +1,7 @@
 package com.pureblue.quant.selectionService;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +9,13 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import com.pureblue.quant.algo.IManagedRunnable.RunningStatus;
 import com.pureblue.quant.analytics.HighLow;
 import com.pureblue.quant.dao.IOHLCPoint;
 import com.pureblue.quant.dao.IOHLCTimeSeries;
+import com.pureblue.quant.model.ISeries;
+import com.pureblue.quant.model.ISeriesAugmentable;
+import com.pureblue.quant.model.ISeriesPoint;
 
 public class CANSLIMAgent implements ISelectionAgent{
 	private static final int MAXIMUM_MAP_INDEX = 0;
@@ -20,6 +25,7 @@ public class CANSLIMAgent implements ISelectionAgent{
 	private volatile List<IOHLCPoint> stockTimeSeries;
 	private boolean selection = false;
 	private Double delta;
+	private volatile RunningStatus runningStatus = RunningStatus.NEW;
 
 	public CANSLIMAgent(String symbol, DateTime startDate, Double delta){
 		this.symbol = symbol;
@@ -75,4 +81,56 @@ public class CANSLIMAgent implements ISelectionAgent{
 		
 		return false;
 	}
+
+    @Override
+    public void pause() {
+        synchronized (runningStatus) {
+            if (runningStatus == RunningStatus.RUNNING) {
+                runningStatus = RunningStatus.PAUSED;
+            }
+        }
+    }
+
+    @Override
+    public void resume() {
+        synchronized (runningStatus) {
+            if (runningStatus == RunningStatus.PAUSED) {
+                runningStatus = RunningStatus.RUNNING;
+            }
+        }
+    }
+
+    @Override
+    public synchronized void kill() {
+        synchronized (runningStatus) {
+            runningStatus = RunningStatus.TERMINATED;
+        }
+        notify();
+    }
+
+    @Override
+    public RunningStatus getRunningStatus() {
+        return runningStatus;
+    }
+
+    @Override
+    public void run() {
+        runningStatus = RunningStatus.RUNNING;
+    }
+
+    @Override
+    public void wire(Map<String, ? extends ISeries<Date, Double, ? extends ISeriesPoint<Date, Double>>> input, ISeriesAugmentable<Date, Double, ISeriesPoint<Date, Double>> output) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void unwire() {
+        kill();
+    }
+
+    @Override
+    public void inputComplete() {
+        kill();
+    }
 }

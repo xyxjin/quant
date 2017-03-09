@@ -169,10 +169,10 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
         logger.info("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices entry.");
         Calendar cal = Calendar.getInstance(YAHOO_FINANCE_TIMEZONE);
         cal.setTime(startDateTime);
-        cal.setTime(endDateTime);
         int startDay = cal.get(Calendar.DATE);
         int startMonth = cal.get(Calendar.MONTH);
         int startYear = cal.get(Calendar.YEAR);
+        cal.setTime(endDateTime);
         int endDay = cal.get(Calendar.DATE);
         int endMonth = cal.get(Calendar.MONTH);
         int endYear = cal.get(Calendar.YEAR);

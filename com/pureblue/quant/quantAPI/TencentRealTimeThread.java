@@ -27,8 +27,7 @@ public class TencentRealTimeThread implements Runnable {
 
     @Override
     public void run() {
-        logger.info("TencentRealTimeThread::run: Tencent Realtime Thread for " + stockId
-                + " entry.");
+        logger.debug("TencentRealTimeThread::run: Tencent Realtime Thread for " + stockId + " entry.");
         ICapitalPoint point;
         TencentRealTimeAdapterComponent adapter = new TencentRealTimeAdapterComponent(stockId);
         try {
@@ -39,24 +38,16 @@ public class TencentRealTimeThread implements Runnable {
             dao.save(point);
             dao.flush();
         } catch (SQLException e) {
-            logger.warn("TencentRealTimeThread::run: Tencent Realtime " + stockId + " Thread db operation failure with "
-                    + e.toString());
+            logger.warn("TencentRealTimeThread::run: Tencent Realtime " + stockId + " Thread db operation failure with " + e.toString());
         } finally {
             try {
                 connection.close();
             } catch (SQLException e) {
-                logger.warn("TencentRealTimeThread::run: release db connection for " + stockId + " failure with "
-                        + e.toString());
+                logger.warn("TencentRealTimeThread::run: release db connection for " + stockId + " failure with " + e.toString());
             }
         }
         
-        /*catch (Exception e) {
-            logger.error("TencentRealTimeThread::run: Tencent Realtime " + stockId + " Thread exception with "
-                    + e.toString());
-        } */
-        
-        logger.info("TencentRealTimeThread::run: Tencent Realtime Thread for " + stockId
-                + " exit!");
+        logger.debug("TencentRealTimeThread::run: Tencent Realtime Thread for " + stockId + " exit!");
     }
 
 }

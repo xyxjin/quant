@@ -59,6 +59,7 @@ public class Hexin {
 	
 	protected JSONObject fetchHtmlBody(Map<String, String> link, int page) throws ConnectException, HttpException, IOException, JSONException {
 		String nextUrl = link.get("baseurl") + link.get("url") + link.get("field") + '/' + link.get("sort") + '/' + String.valueOf(page) + '/' + link.get("type") + '/' + link.get("py");
+		//System.out.println(nextUrl);
 		Document doc = fetchHtmlDoc(nextUrl);
 		String body = doc.select("body").html();
 		body = formatHtmlBodytoJson(body);

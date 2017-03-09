@@ -36,7 +36,7 @@ public class HexinPerIndustry extends Hexin{
 	}
 
 	private void fetchStocksFromInd(Map<String, String> link) throws ConnectException {
-		System.out.println(link.toString());
+		//System.out.println(link.toString());
 		int pageCount = (int) Math.ceil((double)num/stocksPerPage);
 		for(int page=Integer.parseInt(link.get("page")); page<=pageCount; page++){
 			try {

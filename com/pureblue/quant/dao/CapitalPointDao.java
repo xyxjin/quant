@@ -108,6 +108,7 @@ public class CapitalPointDao implements ICapitalPointDao {
         } else {
             stmt.setNull(18, Types.TIMESTAMP);
         }
+        logger.info(stmt.toString());
         // System.out.println(stmt.toString());
         stmt.execute();
     }

@@ -14,8 +14,18 @@ import com.pureblue.quant.model.SymbolFormat;
 
 public class TencenRealtimeStock implements IGeneralAPI {
 
+    private ThreadPoolExecutor pool = null;
+    private int poolSize = 0;
+    private Logger logger = null;
+
+    public TencenRealtimeStock(int poolSize) {
+        super();
+        this.poolSize = poolSize;
+        this.pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize);
+        this.logger = Logger.getLogger(getClass());
+    }
+
     public void fetchActions() {
-        Logger logger = Logger.getLogger(getClass());
         logger.info("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes entry.");
         Connection connection = StockDatebaseFactory.getInstance("test");
         if (null == connection) {
@@ -25,7 +35,6 @@ public class TencenRealtimeStock implements IGeneralAPI {
         HushenMarket market = new HushenMarket(connection);
         Set<String> quotes = market.findAll();
 
-        ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
         for (String symbol : quotes) {
             TencentRealTimeThread t = new TencentRealTimeThread("tencentreal", SymbolFormat.tencentSymbolFormat(symbol));
             pool.execute(t);
@@ -46,8 +55,22 @@ public class TencenRealtimeStock implements IGeneralAPI {
     }
 
     @Override
-    public void stop() {
-        // TODO Auto-generated method stub
-        
+    public void stop() {        
+    }
+    
+    public ThreadPoolExecutor getPool() {
+        return pool;
+    }
+
+    public void setPool(ThreadPoolExecutor pool) {
+        this.pool = pool;
+    }
+
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 }
