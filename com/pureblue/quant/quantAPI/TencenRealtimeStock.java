@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.pureblue.quant.TencentAPI.HushenMarket;
 import com.pureblue.quant.dao.StockDatebaseFactory;
+import com.pureblue.quant.main.IGeneralAPI;
 import com.pureblue.quant.model.SymbolFormat;
 
 public class TencenRealtimeStock implements IGeneralAPI {
@@ -26,7 +27,7 @@ public class TencenRealtimeStock implements IGeneralAPI {
     }
 
     public void fetchActions() {
-        logger.info("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes entry.");
+        logger.debug("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes entry.");
         Connection connection = StockDatebaseFactory.getInstance("test");
         if (null == connection) {
             logger.fatal("TencenRealtimeStock::fetchActions: connect to SQL database failure.");
@@ -51,7 +52,7 @@ public class TencenRealtimeStock implements IGeneralAPI {
         } catch (InterruptedException e) {
             logger.fatal("TencenRealtimeStock::fetchActions: waiting the tencent real time web fetch complete with error info: " + e.toString());
         }
-        logger.info("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes exit!");
+        logger.debug("TencenRealtimeStock::fetchActions: fetch Tencent web real time stock quotes exit!");
     }
 
     @Override

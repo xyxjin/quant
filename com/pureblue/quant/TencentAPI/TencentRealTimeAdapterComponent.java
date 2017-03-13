@@ -61,7 +61,7 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
 
     private CapitalPoint parseCapitalLine(String capitalInfo, String basicInfo,
             DateFormat dateFormat) {
-        logger.info("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " parse Capital Line entry.");
+        logger.debug("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " parse Capital Line entry.");
         logger.info("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " capitalinfo: " + capitalInfo);
         logger.info("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " basicInfo: " + basicInfo);
         Date date;
@@ -112,7 +112,7 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
             logger.warn("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " Thread exception with "
                     + e.toString());
         }
-        logger.info("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " parse Capital Line exit.");
+        logger.debug("TencentRealTimeAdapterComponent::parseCapitalLine: Tencent Realtime " + quotedSymbol + " parse Capital Line exit.");
         return point;
     }
     

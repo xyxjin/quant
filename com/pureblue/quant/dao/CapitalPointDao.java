@@ -44,7 +44,7 @@ public class CapitalPointDao implements ICapitalPointDao {
 
     @Override
     public void initDb() throws SQLException {
-        logger.info("CapitalPointDao::initDb: Dao of capital point table " + tableName
+        logger.debug("CapitalPointDao::initDb: Dao of capital point table " + tableName
                 + " init entry.");
         PreparedStatement stmt;
         int numberOfTables = 0;
@@ -75,7 +75,7 @@ public class CapitalPointDao implements ICapitalPointDao {
             flush();
         }
         rs.close();
-        logger.info("CapitalPointDao::initDb: Dao of capital point table " + tableName
+        logger.debug("CapitalPointDao::initDb: Dao of capital point table " + tableName
                 + " init exit!");
     }
 

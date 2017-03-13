@@ -1,4 +1,4 @@
-package com.pureblue.quant.quantAPI;
+package com.pureblue.quant.main;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

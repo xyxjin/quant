@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import com.pureblue.quant.TencentAPI.HushenMarket;
 import com.pureblue.quant.dao.StockDatebaseFactory;
+import com.pureblue.quant.main.IGeneralAPI;
 
 public class YahooHistoryStock implements IGeneralAPI {
     
@@ -54,7 +55,7 @@ public class YahooHistoryStock implements IGeneralAPI {
         logger.debug("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes exit!");
     }
     public void pending() {
-        logger.info("YahooHistoryStock::pending entry.");
+        logger.debug("YahooHistoryStock::pending entry.");
         pool.shutdown();
         try {
             while (!pool.isTerminated()) {
@@ -67,16 +68,16 @@ public class YahooHistoryStock implements IGeneralAPI {
         } catch (InterruptedException e) {
             logger.fatal("YahooHistoryStock::fetchActions: waiting the yahoo web fetch complete with error info: " + e.toString());
         }
-        logger.info("YahooHistoryStock::pending exit.");
+        logger.debug("YahooHistoryStock::pending exit.");
     }
     
     public void stop(){
-        logger.info("YahooHistoryStock::stop entry.");
+        logger.debug("YahooHistoryStock::stop entry.");
         Iterator<YahooHistoricalThread> iter = threadArray.iterator();
         while(iter.hasNext()){
             pool.remove(iter.next());
         }
-        logger.info("YahooHistoryStock::stop exit.");
+        logger.debug("YahooHistoryStock::stop exit.");
     }
     public int getPoolSize() {
         return poolSize;

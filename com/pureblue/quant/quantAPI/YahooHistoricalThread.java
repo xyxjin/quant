@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.pureblue.quant.dao.IOHLCPoint;
 import com.pureblue.quant.dao.OHLCPointDao;
 import com.pureblue.quant.dao.StockDatebaseFactory;
+import com.pureblue.quant.main.portfolio;
 import com.pureblue.quant.model.BarSize;
 import com.pureblue.quant.model.DataType;
 import com.pureblue.quant.model.IContract;
@@ -33,7 +34,7 @@ public class YahooHistoricalThread implements Runnable {
     }
 
     public void run() {
-        logger.info("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " entry!!");
+        logger.debug("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " entry!!");
         List<IOHLCPoint> info = null;
         Currency currency = Currency.getInstance(Locale.CHINA);
         Date startDateTime;
@@ -79,6 +80,6 @@ public class YahooHistoricalThread implements Runnable {
                 logger.warn("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " close SQL db operation failure with error info " + e.toString());
             }
         }
-        logger.info("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " exit!");
+        logger.debug("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " exit!");
     }
 }

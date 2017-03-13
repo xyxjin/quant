@@ -24,7 +24,7 @@ public class TencentFundZhongcang implements Runnable {
 	
 	@Override
 	public void run() {
-	    logger.info(Thread.currentThread().getName() + " entry.");
+	    logger.debug(Thread.currentThread().getName() + " entry.");
 		List<IFund> points;
 		TencentFundAdaptor adapter = new TencentFundAdaptor();
 		try{
@@ -45,7 +45,7 @@ public class TencentFundZhongcang implements Runnable {
 				e.printStackTrace();
 			}
 		}
-		logger.info(Thread.currentThread().getName() + " end!!"); 
+		logger.debug(Thread.currentThread().getName() + " end!!"); 
 	}
 
 }

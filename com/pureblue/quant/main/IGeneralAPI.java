@@ -1,4 +1,4 @@
-package com.pureblue.quant.quantAPI;
+package com.pureblue.quant.main;
 
 public interface IGeneralAPI {
     public void fetchActions();

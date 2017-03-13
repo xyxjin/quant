@@ -15,7 +15,7 @@ public class HttpUtil {
 
     public static String httpQuery(String url) {
         Logger logger = Logger.getLogger(HttpUtil.class);
-        logger.info("HttpUtil::httpQuery: http query the url entry: " + url);
+        logger.debug("HttpUtil::httpQuery: http query the url entry: " + url);
         HttpClient client = new HttpClient();
         String proxyHost="", proxyPort="";
         try {
@@ -42,7 +42,7 @@ public class HttpUtil {
         }
         if(null == httpRsp)
             logger.error("HttpUtil::httpQuery: http response is null for " + url);
-        logger.info("HttpUtil::httpQuery: http query the url:" + url + " exit!");
+        logger.debug("HttpUtil::httpQuery: http query the url:" + url + " exit!");
         
         return httpRsp;
     }

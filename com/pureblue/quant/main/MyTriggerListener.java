@@ -1,4 +1,4 @@
-package com.pureblue.quant.quantAPI;
+package com.pureblue.quant.main;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;

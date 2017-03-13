@@ -43,7 +43,7 @@ public class OHLCPointDao implements IOHLCPointDao {
 
 	@Override
 	public void initDb(String tableName) throws SQLException {
-	    logger.info("OHLCPointDao::initDb: init SQL table:" + tableName + " entry.");
+	    logger.debug("OHLCPointDao::initDb: init SQL table:" + tableName + " entry.");
 		PreparedStatement stmt;
 		int numberOfTables = 0;
 		tableName = "tb"+tableName;
@@ -73,7 +73,7 @@ public class OHLCPointDao implements IOHLCPointDao {
 			connection.commit();
 		}
 		rs.close();
-		logger.info("OHLCPointDao::initDb: init SQL table:" + tableName + " exit!");
+		logger.debug("OHLCPointDao::initDb: init SQL table:" + tableName + " exit!");
 	}
 
 	@Override

@@ -166,7 +166,7 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
     @Override
     public List<IOHLCPoint> historicalBars(IContract contract, Date startDateTime, Date endDateTime, BarSize barSize, DataType dataType, boolean includeAfterHours,
             ITaskMonitor taskMonitor) {
-        logger.info("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices entry.");
+        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices entry.");
         Calendar cal = Calendar.getInstance(YAHOO_FINANCE_TIMEZONE);
         cal.setTime(startDateTime);
         int startDay = cal.get(Calendar.DATE);
@@ -203,7 +203,7 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
             IOHLCPoint point = parsePriceLine(lines[lineNo], barSize, dateFormat);
             points.add(point);
         }
-        logger.info("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices exit!");
+        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices exit!");
         return points;
     }
 

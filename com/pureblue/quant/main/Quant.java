@@ -1,4 +1,4 @@
-package com.pureblue.quant.quantAPI;
+package com.pureblue.quant.main;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -69,6 +69,7 @@ import com.pureblue.quant.model.ISeriesPoint;
 import com.pureblue.quant.model.SimplePoint;
 import com.pureblue.quant.model.SymbolFormat;
 import com.pureblue.quant.model.TimePeriod;
+import com.pureblue.quant.quantAPI.TencentRealTimeThread;
 import com.pureblue.quant.signal.technical.movingaverage.EMA;
 import com.pureblue.quant.signal.technical.movingaverage.MACD;
 import com.pureblue.quant.ta.IPattern;

@@ -18,15 +18,15 @@ import com.pureblue.quant.dao.StockDatebaseFactory;
 
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution 
-public class SimpleJob implements Job {
+public class TencentRealTimeQuartzJob implements Job {
 
     private Logger logger;
     private Connection connection = null;
 //    private static index = "";
     
-    public SimpleJob() {
+    public TencentRealTimeQuartzJob() {
 //        System.out.println("------- Starting construct ----------------");
-        this.logger = Logger.getLogger(SimpleJob.class);
+        this.logger = Logger.getLogger(TencentRealTimeQuartzJob.class);
     }
     
     private boolean isInterrupted(JobExecutionContext context) {

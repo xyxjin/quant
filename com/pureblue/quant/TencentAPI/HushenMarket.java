@@ -28,7 +28,7 @@ public class HushenMarket {
     }
 
     public void initDb() throws SQLException {
-        logger.info("HushenMarket::initDb: init hushen all market stock id db table entry.");
+        logger.debug("HushenMarket::initDb: init hushen all market stock id db table entry.");
         PreparedStatement stmt;
         int numberOfTables = 0;
         stmt = connection.prepareStatement("SHOW TABLES");
@@ -49,7 +49,7 @@ public class HushenMarket {
         } else
             deleteAll();
         rs.close();
-        logger.info("HushenMarket::initDb: init hushen all market stock id db exit.");
+        logger.debug("HushenMarket::initDb: init hushen all market stock id db exit.");
     }
 
     public void save(Set<String> quotes) throws SQLException {
@@ -74,7 +74,7 @@ public class HushenMarket {
     }
 
     public Set<String> findAll() {
-        logger.info("HushenMarket::findAll: search hushen stock id from db entry.");
+        logger.debug("HushenMarket::findAll: search hushen stock id from db entry.");
         int stockCount = 0;
         Set<String> quotes = new HashSet<String>();
         try {
@@ -91,13 +91,13 @@ public class HushenMarket {
         }
 
         logger.info("HushenMarket::findAll: total stock id count: " + stockCount);
-        logger.info("HushenMarket::findAll: search hushen stock id from db exit!");
+        logger.debug("HushenMarket::findAll: search hushen stock id from db exit!");
         return quotes;
     }
 
     @SuppressWarnings("resource")
     public Set<String> processOneSheet(String filename){
-        logger.info("HushenMarket::processOneSheet: parse the xls sheet entry.");
+        logger.debug("HushenMarket::processOneSheet: parse the xls sheet entry.");
         Set<String> quotes = new HashSet<String>();
         HSSFWorkbook workbook;
         try {
@@ -138,6 +138,6 @@ public class HushenMarket {
         } catch (Exception e) {
             logger.warn("HushenMarket::importMarket: import hushen stock from xls failure with " + e.toString());
         }
-        logger.info("HushenMarket::importMarket: import hushen market stock id to db exit.");
+        logger.debug("HushenMarket::importMarket: import hushen market stock id to db exit.");
     }
 }

@@ -1,4 +1,4 @@
-package com.pureblue.quant.quantAPI;
+package com.pureblue.quant.main;
 
 import java.sql.Connection;
 import java.sql.SQLException;

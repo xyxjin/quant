@@ -14,7 +14,7 @@ public class StockDatebaseFactory {
     public static Connection getInstance(String dataBase){
 //        StockDatebaseFactory.logger = LoggerUtils.getLogger(LoggerUtils.path);
         StockDatebaseFactory.logger = Logger.getLogger(StockDatebaseFactory.class);
-        logger.info("StockDatebaseFactory::getInstance: get SQL datebase " + dataBase + " entry.");
+        logger.debug("StockDatebaseFactory::getInstance: get SQL datebase " + dataBase + " entry.");
         Connection connection = null;
         String url = "jdbc:mysql://127.0.0.1:3306/" + dataBase;
         try {
@@ -27,7 +27,7 @@ public class StockDatebaseFactory {
         } catch (Exception e) {
             logger.fatal("StockDatebaseFactory::getInstance: SQL datebase driver error with " + e.toString());
         }
-        logger.info("StockDatebaseFactory::getInstance: get SQL datebase " + dataBase + " exit.");
+        logger.debug("StockDatebaseFactory::getInstance: get SQL datebase " + dataBase + " exit.");
         return connection;
     }
 }
