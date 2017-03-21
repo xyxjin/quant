@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import com.pureblue.quant.TencentAPI.HushenMarket;
 import com.pureblue.quant.dao.StockDatebaseFactory;
+import com.pureblue.quant.model.HushenMarketQuotes;
 import com.pureblue.quant.model.SymbolFormat;
 
 public class TencentRealtimeQuartzSchedule {
@@ -30,26 +31,12 @@ public class TencentRealtimeQuartzSchedule {
         JobDetail job;
         CronTrigger trigger;
         
-        String database = "yahooquotes";   
-        Connection connection = StockDatebaseFactory.getInstance(database);
-        if (null == connection) {
-            log.error("TencentRealtimeQuartzSchedule::run: connect to SQL database failure.");
-            return;
-        }
-        
-        HushenMarket market = new HushenMarket(connection);
-        try {
-            market.initDb();
-        } catch (SQLException e) {
-            log.error("TencentRealtimeQuartzSchedule::run: connect to SQL database to get symbol list failure with " + e.toString());
-            return;
-        }
-        Set<String> quotes = market.findAll();
+        Set<String> quotes = HushenMarketQuotes.stockSymbolFromEastMoney();
         for (String symbol : quotes) {
             log.info("add " + symbol + " to schedule.");
             job = newJob(TencentRealTimeQuartzJob.class).withIdentity("job"+symbol, "group").build();
             job.getJobDataMap().put("symbol", SymbolFormat.tencentSymbolFormat(symbol));  
-            job.getJobDataMap().put("dbTable", "tencentreal");
+            job.getJobDataMap().put("dbName", "tencentreal");
             trigger = newTrigger().withIdentity("trigger1", "group").withSchedule(cronSchedule("0 0-59/2 10,13-14 * * MON-FRI"))
                         .build();
             sched.scheduleJob(job, trigger);

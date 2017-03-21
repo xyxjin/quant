@@ -20,5 +20,21 @@ public class SymbolFormat {
         	return "sz"+symbol;
         }
 	}
+	
+	public static boolean isStockSymbos(String symbol){
+		if(symbol.length() != 6){
+			return false;
+		}
+		int id = Integer.parseUnsignedInt(symbol);
+		
+		if(id > 0 && id < 10000)
+			return true;
+		if(id > 300000 && id < 400000)
+			return true;
+		if(id > 600000 && id < 700000)
+			return true;
+		
+		return false;
+	}
 
 }

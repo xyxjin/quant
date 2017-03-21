@@ -41,7 +41,7 @@ public class TencentRealTimeQuartzJob implements Job {
 //        System.out.println("------- Starting execute ----------------");
         JobDataMap data = context.getJobDetail().getJobDataMap();  
         String stockId = data.getString("symbol");
-        String dbName = data.getString("dbTable");
+        String dbName = data.getString("dbName");
         String lastIndex = data.containsKey("index") ? data.getString("index"): "";
         
         logger.debug("TencentRealTimeThread::execute: Tencent Realtime Thread for " + stockId + " entry.");
