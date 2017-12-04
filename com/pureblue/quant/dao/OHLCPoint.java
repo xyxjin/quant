@@ -31,7 +31,7 @@ public class OHLCPoint implements IOHLCPoint, Serializable {
 	private final Double WAP;
 	private final Integer count;
 	private Date lastUpdate;
-	
+
 	public static OHLCPoint copy(IOHLCPoint source) {
 		return new OHLCPoint(source.getBarSize(), source.getIndex(), source.getOpen(), source.getHigh(), source.getLow(), source.getClose(), source.getVolume(), source.getAdjClose(), source.getWAP(), source.getCount());
 	}
@@ -132,7 +132,8 @@ public class OHLCPoint implements IOHLCPoint, Serializable {
 		buffer.append("]");
 		return buffer.toString();
 	}
-	public Date getLastUpdate() {
+	@Override
+    public Date getLastUpdate() {
 		if (lastUpdate == null) {
 			return new Date(getIndex().getTime() + getBarSize().getDurationInMs());
 		} else {

@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,6 +39,148 @@ public class CapitalPointDao implements ICapitalPointDao {
         this.tableName = stockDatabaseId.replace(".", "_") + "_" + TABLE_NAME_SUFFIX;
         this.logger = Logger.getLogger(CapitalPointDao.class);
         logger.info("CapitalPointDao::constructor: Dao of capital point for " + stockDatabaseId);
+    }
+
+    @Override
+    public void delete(String id) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + tableName
+                + " WHERE ID = ?");
+        stmt.setString(1, id);
+        stmt.execute();
+    }
+
+    @Override
+    public void deleteAll() throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + tableName
+                + " WHERE SDB_ID = ?");
+        stmt.setString(1, stockDatabaseId);
+        stmt.execute();
+    }
+
+    @Override
+    public List<ICapitalPoint> findall() throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
+                + tableName + " WHERE SDB_ID = ? ORDER BY DATE_TIME");
+        stmt.setString(1, stockDatabaseId);
+        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Date date = new Date(rs.getTimestamp(2).getTime());
+            Double mainInflow = rs.getDouble(3);
+            Double mainOutflow = rs.getDouble(4);
+            Double mainNetflow = rs.getDouble(5);
+            Double mainRate = rs.getDouble(6);
+            Double retailInflow = rs.getDouble(7);
+            Double retailOutflow = rs.getDouble(8);
+            Double retailNetflow = rs.getDouble(9);
+            Double retailRate = rs.getDouble(10);
+            Double volumn = rs.getDouble(11);
+            Double price = rs.getDouble(12);
+            Double turnoverRate = rs.getDouble(13);
+            Double PER = rs.getDouble(14);
+            Double marketValue = rs.getDouble(15);
+            Double totalValue = rs.getDouble(16);
+            Double PBR = rs.getDouble(17);
+            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
+                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
+                    price, turnoverRate, PER, marketValue, totalValue, PBR);
+            Timestamp lastUpdateTs = rs.getTimestamp(18);
+            if (lastUpdateTs != null) {
+                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
+            }
+            result.add(point);
+        }
+        rs.close();
+        return result;
+    }
+
+    public List<ICapitalPoint> findTick(Date wantDate) throws SQLException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String wantDateString = formatter.format(wantDate);
+        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
+                + tableName + " WHERE SDB_ID = ? and DATE_TIME = ? ORDER BY DATE_TIME");
+
+        System.out.println(stmt.toString());
+
+        stmt.setString(1, stockDatabaseId);
+        stmt.setString(2, wantDateString);
+        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Date date = new Date(rs.getTimestamp(2).getTime());
+            Double mainInflow = rs.getDouble(3);
+            Double mainOutflow = rs.getDouble(4);
+            Double mainNetflow = rs.getDouble(5);
+            Double mainRate = rs.getDouble(6);
+            Double retailInflow = rs.getDouble(7);
+            Double retailOutflow = rs.getDouble(8);
+            Double retailNetflow = rs.getDouble(9);
+            Double retailRate = rs.getDouble(10);
+            Double volumn = rs.getDouble(11);
+            Double price = rs.getDouble(12);
+            Double turnoverRate = rs.getDouble(13);
+            Double PER = rs.getDouble(14);
+            Double marketValue = rs.getDouble(15);
+            Double totalValue = rs.getDouble(16);
+            Double PBR = rs.getDouble(17);
+            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
+                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
+                    price, turnoverRate, PER, marketValue, totalValue, PBR);
+            Timestamp lastUpdateTs = rs.getTimestamp(18);
+            if (lastUpdateTs != null) {
+                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
+            }
+            result.add(point);
+        }
+        rs.close();
+        return result;
+    }
+
+    public List<ICapitalPoint> findTicker(Date wantDate, Date priorDate)
+            throws SQLException {
+        String wantDateString = TimePeriod.formatDateToString(wantDate);
+        String priorDateString = TimePeriod.formatDateToString(priorDate);
+        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
+                + tableName
+                + " WHERE SDB_ID = ? and DATE_TIME >= ? and DATE_TIME <= ? ORDER BY DATE_TIME");
+        stmt.setString(1, stockDatabaseId);
+        stmt.setString(2, priorDateString);
+        stmt.setString(3, wantDateString);
+        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
+        ResultSet rs = stmt.executeQuery();
+        while (rs.next()) {
+            Date date = new Date(rs.getTimestamp(2).getTime());
+            Double mainInflow = rs.getDouble(3);
+            Double mainOutflow = rs.getDouble(4);
+            Double mainNetflow = rs.getDouble(5);
+            Double mainRate = rs.getDouble(6);
+            Double retailInflow = rs.getDouble(7);
+            Double retailOutflow = rs.getDouble(8);
+            Double retailNetflow = rs.getDouble(9);
+            Double retailRate = rs.getDouble(10);
+            Double volumn = rs.getDouble(11);
+            Double price = rs.getDouble(12);
+            Double turnoverRate = rs.getDouble(13);
+            Double PER = rs.getDouble(14);
+            Double marketValue = rs.getDouble(15);
+            Double totalValue = rs.getDouble(16);
+            Double PBR = rs.getDouble(17);
+            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
+                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
+                    price, turnoverRate, PER, marketValue, totalValue, PBR);
+            Timestamp lastUpdateTs = rs.getTimestamp(18);
+            if (lastUpdateTs != null) {
+                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
+            }
+            result.add(point);
+        }
+        rs.close();
+        return result;
+    }
+
+    @Override
+    public void flush() throws SQLException {
+        connection.commit();
     }
 
     @Override
@@ -77,6 +218,30 @@ public class CapitalPointDao implements ICapitalPointDao {
         rs.close();
         logger.debug("CapitalPointDao::initDb: Dao of capital point table " + tableName
                 + " init exit!");
+    }
+
+    @Override
+    public void initDb(String tableName) throws SQLException {
+        // TODO Auto-generated method stub
+
+    }
+
+    public Date lastDate() throws SQLException {
+        Date result = TimePeriod.formatStringToDate("2014-1-1");
+        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
+                + tableName + " WHERE SDB_ID = ? ORDER BY DATE_TIME");
+        stmt.setString(1, stockDatabaseId);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.last()) {
+
+            result = new Date(rs.getTimestamp(1).getTime());
+/*            Calendar rightNow = Calendar.getInstance();
+            rightNow.setTime(result);
+            rightNow.add(Calendar.DAY_OF_YEAR, 1);
+            result = rightNow.getTime();*/
+        }
+        rs.close();
+        return result;
     }
 
     @Override
@@ -155,160 +320,6 @@ public class CapitalPointDao implements ICapitalPointDao {
             throw new IllegalArgumentException("Multiple items for these parameters: "
                     + stockDatabaseId + ";" + newItem.getIndex());
         }
-    }
-
-    @Override
-    public List<ICapitalPoint> findall() throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
-                + tableName + " WHERE SDB_ID = ? ORDER BY DATE_TIME");
-        stmt.setString(1, stockDatabaseId);
-        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            Date date = new Date(rs.getTimestamp(2).getTime());
-            Double mainInflow = rs.getDouble(3);
-            Double mainOutflow = rs.getDouble(4);
-            Double mainNetflow = rs.getDouble(5);
-            Double mainRate = rs.getDouble(6);
-            Double retailInflow = rs.getDouble(7);
-            Double retailOutflow = rs.getDouble(8);
-            Double retailNetflow = rs.getDouble(9);
-            Double retailRate = rs.getDouble(10);
-            Double volumn = rs.getDouble(11);
-            Double price = rs.getDouble(12);
-            Double turnoverRate = rs.getDouble(13);
-            Double PER = rs.getDouble(14);
-            Double marketValue = rs.getDouble(15);
-            Double totalValue = rs.getDouble(16);
-            Double PBR = rs.getDouble(17);
-            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
-                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
-                    price, turnoverRate, PER, marketValue, totalValue, PBR);
-            Timestamp lastUpdateTs = rs.getTimestamp(18);
-            if (lastUpdateTs != null) {
-                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
-            }
-            result.add(point);
-        }
-        rs.close();
-        return result;
-    }
-
-    public List<ICapitalPoint> findTick(Date wantDate) throws SQLException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-        String wantDateString = formatter.format(wantDate);
-        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
-                + tableName + " WHERE SDB_ID = ? and DATE_TIME = ? ORDER BY DATE_TIME");
-        stmt.setString(1, stockDatabaseId);
-        stmt.setString(2, wantDateString);
-        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            Date date = new Date(rs.getTimestamp(2).getTime());
-            Double mainInflow = rs.getDouble(3);
-            Double mainOutflow = rs.getDouble(4);
-            Double mainNetflow = rs.getDouble(5);
-            Double mainRate = rs.getDouble(6);
-            Double retailInflow = rs.getDouble(7);
-            Double retailOutflow = rs.getDouble(8);
-            Double retailNetflow = rs.getDouble(9);
-            Double retailRate = rs.getDouble(10);
-            Double volumn = rs.getDouble(11);
-            Double price = rs.getDouble(12);
-            Double turnoverRate = rs.getDouble(13);
-            Double PER = rs.getDouble(14);
-            Double marketValue = rs.getDouble(15);
-            Double totalValue = rs.getDouble(16);
-            Double PBR = rs.getDouble(17);
-            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
-                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
-                    price, turnoverRate, PER, marketValue, totalValue, PBR);
-            Timestamp lastUpdateTs = rs.getTimestamp(18);
-            if (lastUpdateTs != null) {
-                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
-            }
-            result.add(point);
-        }
-        rs.close();
-        return result;
-    }
-
-    public List<ICapitalPoint> findTicker(Date wantDate, Date priorDate)
-            throws SQLException {
-        String wantDateString = TimePeriod.formatDateToString(wantDate);
-        String priorDateString = TimePeriod.formatDateToString(priorDate);
-        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
-                + tableName
-                + " WHERE SDB_ID = ? and DATE_TIME >= ? and DATE_TIME <= ? ORDER BY DATE_TIME");
-        stmt.setString(1, stockDatabaseId);
-        stmt.setString(2, priorDateString);
-        stmt.setString(3, wantDateString);
-        List<ICapitalPoint> result = new LinkedList<ICapitalPoint>();
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) {
-            Date date = new Date(rs.getTimestamp(2).getTime());
-            Double mainInflow = rs.getDouble(3);
-            Double mainOutflow = rs.getDouble(4);
-            Double mainNetflow = rs.getDouble(5);
-            Double mainRate = rs.getDouble(6);
-            Double retailInflow = rs.getDouble(7);
-            Double retailOutflow = rs.getDouble(8);
-            Double retailNetflow = rs.getDouble(9);
-            Double retailRate = rs.getDouble(10);
-            Double volumn = rs.getDouble(11);
-            Double price = rs.getDouble(12);
-            Double turnoverRate = rs.getDouble(13);
-            Double PER = rs.getDouble(14);
-            Double marketValue = rs.getDouble(15);
-            Double totalValue = rs.getDouble(16);
-            Double PBR = rs.getDouble(17);
-            CapitalPoint point = new CapitalPoint(date, mainInflow, mainOutflow, mainNetflow,
-                    mainRate, retailInflow, retailOutflow, retailNetflow, retailRate, volumn,
-                    price, turnoverRate, PER, marketValue, totalValue, PBR);
-            Timestamp lastUpdateTs = rs.getTimestamp(18);
-            if (lastUpdateTs != null) {
-                point.setLastUpdate(new Date(lastUpdateTs.getTime()));
-            }
-            result.add(point);
-        }
-        rs.close();
-        return result;
-    }
-
-    public Date lastDate() throws SQLException {
-        Date result = TimePeriod.formatStringToDate("2014-1-1");
-        PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM "
-                + tableName + " WHERE SDB_ID = ? ORDER BY DATE_TIME");
-        stmt.setString(1, stockDatabaseId);
-        ResultSet rs = stmt.executeQuery();
-        if (rs.last()) {
-            result = new Date(rs.getTimestamp(2).getTime());
-            Calendar rightNow = Calendar.getInstance();
-            rightNow.setTime(result);
-            rightNow.add(Calendar.DAY_OF_YEAR, 1);
-            result = rightNow.getTime();
-        }
-        rs.close();
-        return result;
-    }
-
-    @Override
-    public void deleteAll() throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("DELETE FROM " + tableName
-                + " WHERE SDB_ID = ?");
-        stmt.setString(1, stockDatabaseId);
-        stmt.execute();
-    }
-
-    @Override
-    public void flush() throws SQLException {
-        connection.commit();
-    }
-
-    @Override
-    public void initDb(String tableName) throws SQLException {
-        // TODO Auto-generated method stub
-
     }
 
 }

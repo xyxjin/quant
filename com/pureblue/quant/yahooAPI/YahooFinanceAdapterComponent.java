@@ -34,6 +34,13 @@ import com.pureblue.quant.model.beans.ContractDescBean;
 import com.pureblue.quant.util.HttpUtil;
 
 public class YahooFinanceAdapterComponent implements IMarketDataProvider {
+    private class StockInfo {
+        Currency currency;
+
+        StockInfo(Currency currency) {
+            this.currency = currency;
+        }
+    }
     private static final String YAHOO_TICKER_QUERY_URL = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=%s&callback=YAHOO.Finance.SymbolSuggest.ssCallback";
     private static final String YAHOO_STOCK_QUERY_URL = "http://finance.yahoo.com/q?s=%s";
     private static final String YAHOO_STOCK_PRICES_QUERY_URL = "http://ichart.finance.yahoo.com/table.csv?s=%s&a=%d&b=%d&c=%d&d=%d&e=%s&f=%d&g=%s&ignore=.csv";
@@ -46,24 +53,15 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
     private static final String YAHOO_DESCRIPTION_KEY = "name";
     private static final String YAHOO_BROKER_ID = "Yahoo!";
     private static final String URL_ENCODING_ENCODING = "UTF-8";
+    public static final TimeZone YAHOO_FINANCE_TIMEZONE = TimeZone.getTimeZone("UTC");
     private final Pattern STOCK_CURRENCY_PATTERN = Pattern.compile(".*Currency in (...)\\..*", Pattern.DOTALL);
     private Logger logger;
+
     private String symbol;
-    public static final TimeZone YAHOO_FINANCE_TIMEZONE = TimeZone.getTimeZone("UTC");
 
     public YahooFinanceAdapterComponent(String stockId) {
         this.symbol = stockId;
         this.logger = Logger.getLogger(getClass());
-    }
-
-    @Override
-    public DataType[] availableDataTypes() {
-        return new DataType[] { DataType.MIDPOINT };
-    }
-
-    @Override
-    public BarSize[] availableBarSizes() {
-        return new BarSize[] { BarSize.ONE_DAY, BarSize.ONE_WEEK, BarSize.ONE_MONTH };
     }
 
     private String addMarketNameToSymbol(String symbol) {
@@ -72,6 +70,173 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
         } else {
             return symbol + ".SZ";
         }
+    }
+
+    @Override
+    public BarSize[] availableBarSizes() {
+        return new BarSize[] { BarSize.ONE_DAY, BarSize.ONE_WEEK, BarSize.ONE_MONTH };
+    }
+
+    @Override
+    public DataType[] availableDataTypes() {
+        return new DataType[] { DataType.MIDPOINT };
+    }
+
+    private SecurityType decodeSecurityType(String code) {
+        if ("Future".equals(code)) {
+            return SecurityType.FUT;
+        } else if ("Index".equals(code)) {
+            return SecurityType.IND;
+        } else {
+            return SecurityType.STK;
+        }
+    }
+
+    private String encodeBarSize(BarSize barSize){
+        String code = null;
+        switch (barSize) {
+        case ONE_DAY:
+            code = "d";
+            break;
+        case ONE_WEEK:
+            code = "w";
+            break;
+        case ONE_MONTH:
+            code = "m";
+            break;
+        default:
+            logger.warn("YahooFinanceAdapterComponent::encodeBarSize: Price from Yahoo!Finance are only in daily, weekly, monthly periods for symbol=" + symbol + ".");
+        }
+        return code;
+    }
+
+    private String extractDescription(JSON security) {
+        String description = "";
+        JSON descNode = security.get(YAHOO_DESCRIPTION_KEY);
+        if (descNode != null) {
+            description = (String) descNode.getValue();
+        }
+        return description;
+    }
+
+    private String extractExchange(JSON security) {
+        String exchange = "UNKNOWN";
+        JSON exchangeNode = security.get(YAHOO_EXCHANGE_DISPLAY_KEY);
+        if (exchangeNode == null) {
+            exchangeNode = security.get(YAHOO_EXCHANGE_KEY);
+        }
+        if (exchangeNode != null) {
+            exchange = (String) exchangeNode.getValue();
+        }
+        return exchange;
+    }
+
+    private String extractSecurityType(JSON security) {
+        String type = null;
+        JSON typeNode = security.get(YAHOO_TYPE_KEY);
+        if (typeNode != null) {
+            type = (String) typeNode.getValue();
+        }
+        return type;
+    }
+
+    private StockInfo getStockInfo(String symbol){
+        String quotedSymbol;
+        try {
+            quotedSymbol = URLEncoder.encode(symbol, URL_ENCODING_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("YahooFinanceAdapterComponent::getStockInfo: Exception encoding symbol: " + symbol + " with error info " + e.toString());
+            return null;
+        }
+        String stockId = addMarketNameToSymbol(quotedSymbol);
+        String queryUrl = String.format(YAHOO_STOCK_QUERY_URL, stockId);
+        String responseString = null;
+        try {
+            responseString = HttpUtil.httpQuery(queryUrl);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        Matcher m = STOCK_CURRENCY_PATTERN.matcher(responseString);
+        if (!m.matches()) {
+            logger.warn("YahooFinanceAdapterComponent::getStockInfo: HTTP response doesn't match currency pattern: " + responseString + " for stock: " + symbol);
+            return null;
+        }
+        String currencyCode = m.group(1);
+        return new StockInfo(Currency.getInstance(currencyCode));
+    }
+
+    @Override
+    public List<IOHLCPoint> historicalBars(IContract contract, Date startDateTime, Date endDateTime, BarSize barSize, DataType dataType, boolean includeAfterHours,
+            ITaskMonitor taskMonitor) {
+        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices entry.");
+        Calendar cal = Calendar.getInstance(YAHOO_FINANCE_TIMEZONE);
+        cal.setTime(startDateTime);
+        int startDay = cal.get(Calendar.DATE);
+        int startMonth = cal.get(Calendar.MONTH);
+        int startYear = cal.get(Calendar.YEAR);
+        cal.setTime(endDateTime);
+        int endDay = cal.get(Calendar.DATE);
+        int endMonth = cal.get(Calendar.MONTH);
+        int endYear = cal.get(Calendar.YEAR);
+        String quotedSymbol;
+        try {
+            quotedSymbol = URLEncoder.encode(contract.getSymbol(), URL_ENCODING_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            logger.warn("YahooFinanceAdapterComponent::historicalBars: UnsupportedEncodingException encoding symbol: " + contract.getSymbol() + " with error info " + e.toString());
+            return null;
+        }
+        String stockId = addMarketNameToSymbol(quotedSymbol);
+        String queryUrl = String.format(YAHOO_STOCK_PRICES_QUERY_URL, stockId, startMonth, startDay, startYear, endMonth, endDay, endYear, encodeBarSize(barSize));
+        logger.info("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for historical prices: " + queryUrl);
+        String responseString = null;
+        try {
+            responseString = HttpUtil.httpQuery(queryUrl);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        if(null == responseString){
+            logger.warn("YahooFinanceAdapterComponent::historicalBars: Received null http RSP for symbol=" + symbol);
+            return null;
+        }
+        String[] lines = responseString.split("\\n");
+        if (!lines[0].equals(YAHOO_STOCK_PRICES_HEADER)) {
+            logger.warn("YahooFinanceAdapterComponent::historicalBars: Response format not recognized: " + responseString.substring(0, 200) + " for symbol=" + contract.getSymbol());
+            return null;
+        }
+        logger.info("YahooFinanceAdapterComponent::historicalBars: Received " + (lines.length - 1) + " lines");
+        List<IOHLCPoint> points = new LinkedList<IOHLCPoint>();
+        DateFormat dateFormat = new SimpleDateFormat(YAHOO_STOCK_PRICES_DATE_FORMAT);
+        for (int lineNo = lines.length - 1; lineNo > 0; lineNo--) {
+            IOHLCPoint point = parsePriceLine(lines[lineNo], barSize, dateFormat);
+            points.add(point);
+        }
+        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices exit!");
+        return points;
+    }
+
+    private OHLCPoint parsePriceLine(String line, BarSize barSize, DateFormat dateFormat){
+        OHLCPoint point = null;
+        String[] tokens = line.split(",");
+        if (tokens.length != 7) {
+            logger.warn("YahooFinanceAdapterComponent::parsePriceLine: Yahoo! stock=" + symbol + "history received invalid line: " + line);
+            return null;
+        }
+        try {
+            Date date;
+            date = dateFormat.parse(tokens[0]);
+            Double open = Double.parseDouble(tokens[1]);
+            Double high = Double.parseDouble(tokens[2]);
+            Double low = Double.parseDouble(tokens[3]);
+            Double close = Double.parseDouble(tokens[4]);
+            Long volume = Long.parseLong(tokens[5]);
+            Double adjClose = Double.parseDouble(tokens[6]);
+            point = new OHLCPoint(barSize, date, open, high, low, close, volume, adjClose, (open + close) / 2, 1);
+        } catch (ParseException e) {
+            logger.warn("YahooFinanceAdapterComponent::parsePriceLine: Error while parsing line: " + line + " for symbol=" + symbol + " with error info " + e.toString());
+        }
+        return point;
     }
 
     @Override
@@ -131,158 +296,5 @@ public class YahooFinanceAdapterComponent implements IMarketDataProvider {
             contractList.add(contract);
         }
         return contractList;
-    }
-
-    private String extractSecurityType(JSON security) {
-        String type = null;
-        JSON typeNode = security.get(YAHOO_TYPE_KEY);
-        if (typeNode != null) {
-            type = (String) typeNode.getValue();
-        }
-        return type;
-    }
-
-    private String extractExchange(JSON security) {
-        String exchange = "UNKNOWN";
-        JSON exchangeNode = security.get(YAHOO_EXCHANGE_DISPLAY_KEY);
-        if (exchangeNode == null) {
-            exchangeNode = security.get(YAHOO_EXCHANGE_KEY);
-        }
-        if (exchangeNode != null) {
-            exchange = (String) exchangeNode.getValue();
-        }
-        return exchange;
-    }
-
-    private String extractDescription(JSON security) {
-        String description = "";
-        JSON descNode = security.get(YAHOO_DESCRIPTION_KEY);
-        if (descNode != null) {
-            description = (String) descNode.getValue();
-        }
-        return description;
-    }
-
-    @Override
-    public List<IOHLCPoint> historicalBars(IContract contract, Date startDateTime, Date endDateTime, BarSize barSize, DataType dataType, boolean includeAfterHours,
-            ITaskMonitor taskMonitor) {
-        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices entry.");
-        Calendar cal = Calendar.getInstance(YAHOO_FINANCE_TIMEZONE);
-        cal.setTime(startDateTime);
-        int startDay = cal.get(Calendar.DATE);
-        int startMonth = cal.get(Calendar.MONTH);
-        int startYear = cal.get(Calendar.YEAR);
-        cal.setTime(endDateTime);
-        int endDay = cal.get(Calendar.DATE);
-        int endMonth = cal.get(Calendar.MONTH);
-        int endYear = cal.get(Calendar.YEAR);
-        String quotedSymbol;
-        try {
-            quotedSymbol = URLEncoder.encode(contract.getSymbol(), URL_ENCODING_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            logger.warn("YahooFinanceAdapterComponent::historicalBars: UnsupportedEncodingException encoding symbol: " + contract.getSymbol() + " with error info " + e.toString());
-            return null;
-        }
-        String stockId = addMarketNameToSymbol(quotedSymbol);
-        String queryUrl = String.format(YAHOO_STOCK_PRICES_QUERY_URL, stockId, startMonth, startDay, startYear, endMonth, endDay, endYear, encodeBarSize(barSize));
-        logger.info("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for historical prices: " + queryUrl);
-        String responseString = HttpUtil.httpQuery(queryUrl);
-        if(null == responseString){
-            logger.warn("YahooFinanceAdapterComponent::historicalBars: Received null http RSP for symbol=" + symbol);
-            return null;
-        }
-        String[] lines = responseString.split("\\n");
-        if (!lines[0].equals(YAHOO_STOCK_PRICES_HEADER)) {
-            logger.warn("YahooFinanceAdapterComponent::historicalBars: Response format not recognized: " + responseString.substring(0, 200) + " for symbol=" + contract.getSymbol());
-            return null;
-        }
-        logger.info("YahooFinanceAdapterComponent::historicalBars: Received " + (lines.length - 1) + " lines");
-        List<IOHLCPoint> points = new LinkedList<IOHLCPoint>();
-        DateFormat dateFormat = new SimpleDateFormat(YAHOO_STOCK_PRICES_DATE_FORMAT);
-        for (int lineNo = lines.length - 1; lineNo > 0; lineNo--) {
-            IOHLCPoint point = parsePriceLine(lines[lineNo], barSize, dateFormat);
-            points.add(point);
-        }
-        logger.debug("YahooFinanceAdapterComponent::historicalBars: Query Yahoo!Finance for " + symbol + "historical prices exit!");
-        return points;
-    }
-
-    private SecurityType decodeSecurityType(String code) {
-        if ("Future".equals(code)) {
-            return SecurityType.FUT;
-        } else if ("Index".equals(code)) {
-            return SecurityType.IND;
-        } else {
-            return SecurityType.STK;
-        }
-    }
-
-    private String encodeBarSize(BarSize barSize){
-        String code = null;
-        switch (barSize) {
-        case ONE_DAY:
-            code = "d";
-            break;
-        case ONE_WEEK:
-            code = "w";
-            break;
-        case ONE_MONTH:
-            code = "m";
-            break;
-        default:
-            logger.warn("YahooFinanceAdapterComponent::encodeBarSize: Price from Yahoo!Finance are only in daily, weekly, monthly periods for symbol=" + symbol + ".");
-        }
-        return code;
-    }
-
-    private OHLCPoint parsePriceLine(String line, BarSize barSize, DateFormat dateFormat){
-        OHLCPoint point = null;
-        String[] tokens = line.split(",");
-        if (tokens.length != 7) {
-            logger.warn("YahooFinanceAdapterComponent::parsePriceLine: Yahoo! stock=" + symbol + "history received invalid line: " + line);
-            return null;
-        }
-        try {
-            Date date;
-            date = dateFormat.parse(tokens[0]);
-            Double open = Double.parseDouble(tokens[1]);
-            Double high = Double.parseDouble(tokens[2]);
-            Double low = Double.parseDouble(tokens[3]);
-            Double close = Double.parseDouble(tokens[4]);
-            Long volume = Long.parseLong(tokens[5]);
-            Double adjClose = Double.parseDouble(tokens[6]);
-            point = new OHLCPoint(barSize, date, open, high, low, close, volume, adjClose, (open + close) / 2, 1);
-        } catch (ParseException e) {
-            logger.warn("YahooFinanceAdapterComponent::parsePriceLine: Error while parsing line: " + line + " for symbol=" + symbol + " with error info " + e.toString());
-        }
-        return point;
-    }
-
-    private class StockInfo {
-        StockInfo(Currency currency) {
-            this.currency = currency;
-        }
-
-        Currency currency;
-    }
-
-    private StockInfo getStockInfo(String symbol){
-        String quotedSymbol;
-        try {
-            quotedSymbol = URLEncoder.encode(symbol, URL_ENCODING_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            logger.warn("YahooFinanceAdapterComponent::getStockInfo: Exception encoding symbol: " + symbol + " with error info " + e.toString());
-            return null;
-        }
-        String stockId = addMarketNameToSymbol(quotedSymbol);
-        String queryUrl = String.format(YAHOO_STOCK_QUERY_URL, stockId);
-        String responseString = HttpUtil.httpQuery(queryUrl);
-        Matcher m = STOCK_CURRENCY_PATTERN.matcher(responseString);
-        if (!m.matches()) {
-            logger.warn("YahooFinanceAdapterComponent::getStockInfo: HTTP response doesn't match currency pattern: " + responseString + " for stock: " + symbol);
-            return null;
-        }
-        String currencyCode = m.group(1);
-        return new StockInfo(Currency.getInstance(currencyCode));
     }
 }

@@ -1,31 +1,10 @@
 package com.pureblue.quant.main;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.net.URLEncoder;
+import java.util.Random;
 
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -33,52 +12,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.math3.distribution.*;
-import org.apache.commons.math3.stat.correlation.Covariance;
-import org.apache.commons.math3.stat.correlation.KendallsCorrelation;
-import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import com.pureblue.quant.TencentAPI.HexinPerIndustry;
-import com.pureblue.quant.TencentAPI.HexunConceptionAdaptor;
-import com.pureblue.quant.TencentAPI.HexunConceptionIndustryDao;
-import com.pureblue.quant.TencentAPI.HushenMarket;
-import com.pureblue.quant.TencentAPI.TencentRealTimeAdapterComponent;
-import com.pureblue.quant.analytics.HighLow;
-import com.pureblue.quant.analytics.PatternDown;
-import com.pureblue.quant.analytics.PatternM;
-import com.pureblue.quant.analytics.PatternType;
-import com.pureblue.quant.analytics.PatternUp;
-import com.pureblue.quant.analytics.PatternW;
-import com.pureblue.quant.analytics.TrendMode;
-import com.pureblue.quant.dao.CapitalPoint;
-import com.pureblue.quant.dao.IOHLCPoint;
-import com.pureblue.quant.dao.OHLCPointDao;
-import com.pureblue.quant.dao.StockDatebaseFactory;
-import com.pureblue.quant.model.BarSize;
-import com.pureblue.quant.model.ISeriesPoint;
-import com.pureblue.quant.model.SimplePoint;
-import com.pureblue.quant.model.SymbolFormat;
-import com.pureblue.quant.model.TimePeriod;
-import com.pureblue.quant.quantAPI.TencentRealTimeThread;
-import com.pureblue.quant.signal.technical.movingaverage.EMA;
-import com.pureblue.quant.signal.technical.movingaverage.MACD;
-import com.pureblue.quant.ta.IPattern;
-import com.pureblue.quant.util.ConfigPropValue;
-import com.pureblue.quant.util.HttpUtil;
-import com.pureblue.quant.util.LoggerUtils;
-
-import java.net.URLEncoder;
-import java.net.InetAddress;
 
 public class Quant {
     Logger logger;
@@ -98,7 +35,56 @@ public class Quant {
          * task.run();
          */
 
-        String value;
+        int strLength = 17;
+        Random rm = new Random();
+        String randomStr = "";
+        int[] number = new int[strLength];
+        for (int i = 0; i < strLength; i++) {
+            number[i] = rm.nextInt(10);
+            System.out.print(number[i] + "");
+            if(0 == number[strLength-1])
+                number[strLength-1] = 1;
+            randomStr = randomStr + Integer.toString(number[i]);
+        }
+        System.out.println("");
+        System.out.println( randomStr);
+
+
+        String year = "2003";
+        String next = "2004";
+
+        int yearInt = Integer.parseInt(year);
+        if(yearInt%2 == 0)
+            System.out.println(yearInt-1);
+        else
+            System.out.println(yearInt);
+
+        int nextInt = Integer.parseInt(next);
+        if(nextInt%2 == 0) {
+            System.out.print("next: ");
+            System.out.println(nextInt-1);
+        }
+        else
+            System.out.println(nextInt);
+//        // 获得随机数
+//        double pross = (1 + rm.nextDouble()) * Math.pow(10, strLength);
+//
+//        // 将获得的获得随机数转化为字符串
+//        String fixLenthString = String.valueOf(pross);
+//        System.out.println(fixLenthString);
+//        // 返回固定的长度的随机数
+//        System.out.println(fixLenthString.substring(2, strLength + 2));
+/*        int n =17;
+        Random random = new Random();
+        long start = (long)Math.pow(10, n-1);
+        long end = (long)(Math.pow(10,n) - 1);
+        long delta = end - start;
+        System.out.println(delta);
+        System.out.println(random.nextLong());
+//        long ran = random.nextInt(delta) + (long)start;
+//        //        DoubleStream doubleStream = random.doubles(13);
+//        System.out.println(Long.toString(ran));
+*//*        String value;
         value = ConfigPropValue.getPropValue(LoggerUtils.LOG_LEVEL_PROPERTY_KEY);
         System.setProperty(LoggerUtils.LOG_LEVEL_PROPERTY_KEY, value);
         value = ConfigPropValue.getPropValue(HttpUtil.PROXY_HOST_PROPERTY_KEY);
@@ -107,16 +93,16 @@ public class Quant {
         System.setProperty(HttpUtil.PROXY_PORT_PROPERTY_KEY, value);
 
 //        Logger logger = LoggerUtils.getLogger(LoggerUtils.path);
-        String database = "yahooquotes";
+        String database = "stockquotes";
         Logger logger = Logger.getLogger(Quant.class);
-        
+
         logger.fatal("Quant::Main: connect to SQL database failure.");
 
         Connection connection = StockDatebaseFactory.getInstance(database);
         if (null == connection) {
             logger.fatal("Quant::Main: connect to SQL database failure.");
             return;
-        }
+        }*/
 //        HushenMarket market = new HushenMarket(connection);
 //        try {
 //            market.initDb();
@@ -138,9 +124,9 @@ public class Quant {
         TencenRealtimeStock realupdate = new TencenRealtimeStock();
         realupdate.fetchActions();
         */
-        
-        
 
+
+/*
         ArrayList<String> quotes = new ArrayList<String>();
         quotes.add("600031");
         ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
@@ -158,15 +144,43 @@ public class Quant {
         }
         if (!pool.awaitTermination(15, TimeUnit.MINUTES)) {
             logger.fatal("Tencent real quote has been timeout!!");
-        }  
+        }
         System.out.println("done!!!!!!!!!!!!!!!!!!!");
+*/
+
+//        ArrayList<String> quotes = new ArrayList<String>();
+//        quotes.add("sz399006");
+
+/*        Set<String> quotes = HushenMarketQuotes.stockSymbolFromEastMoney();
+        for(String symbol : quotes)
+        {
+            System.out.println(SymbolFormat.tencentSymbolFormat(symbol));
+        }
+        ThreadPoolExecutor pool = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
+        for(String symbol : quotes)
+        {
+            TencentHistoricalThread t = new TencentHistoricalThread("tencentstockquotes", symbol);
+            t.setFetchMode(true);
+            pool.execute(t);
+            System.out.println(symbol);
+        }
+        pool.shutdown();
+        while(!pool.isTerminated()){
+            Thread.sleep(5000);
+            System.out.println("complete task count: "+((ThreadPoolExecutor) pool).getCompletedTaskCount());
+        }
+        if (!pool.awaitTermination(15, TimeUnit.MINUTES)) {
+            logger.fatal("Tencent history quote has been timeout!!");
+        }
+        System.out.println("done!!!!!!!!!!!!!!!!!!!");*/
+
 
 //        ArrayList<String> quotes = new ArrayList<String>();
 //        quotes.add("000001");
-        
+
         /*
         ThreadPoolExecutor pool2 = (ThreadPoolExecutor) Executors.newFixedThreadPool(100);
-        for (String symbol : quotes) {
+        for (String symbol : quotes) {.
             logger.info("Yahoo history quote has been created for "
                     + SymbolFormat.tencentSymbolFormat(symbol));
             YahooHistoricalThread t = new YahooHistoricalThread(database, symbol);
@@ -182,7 +196,7 @@ public class Quant {
         }
         System.out.println("done!!!!!!!!!!!!!!!!!!!");
         */
-        
+
         // String symbol = "sh600030";
         // TencentRealTimeThread rl = new TencentRealTimeThread("tencentreal",
         // symbol);
@@ -199,10 +213,10 @@ public class Quant {
          * OHLCPointDao ohlcPointDao = new OHLCPointDao(connection); Date
          * endDateTime = TimePeriod.formatStringToDate("2015-06-19"); Date
          * startDateTime = TimePeriod.formatStringToDate("2003-01-01");
-         * 
+         *
          * List<IOHLCPoint> data = ohlcPointDao.findTicker(symbol, endDateTime,
          * startDateTime);
-         * 
+         *
          * int len = data.size(); System.out.println(len);
          * List<ISeriesPoint<Date, Double>> points = new
          * ArrayList<ISeriesPoint<Date, Double>>();
@@ -225,10 +239,10 @@ public class Quant {
          * List<ISeriesPoint<Date, Double>> map_peaks = new
          * ArrayList<ISeriesPoint<Date, Double>>(); map_peaks =
          * HighLow.peak_detection(points, 0.07);
-         * 
+         *
          * System.out.println(map_peaks.size());
          * System.out.println(map_peaks.toString());
-         * 
+         *
          * PatternW w = new PatternW(0.03, 0.07, 0.00); PatternM m = new
          * PatternM(0.03, 0.07, 0.00); PatternDown down = new PatternDown(0.13,
          * 0.07, 0.13); PatternUp up = new PatternUp(0.13, 0.03, 0.13);
@@ -248,7 +262,7 @@ public class Quant {
          * i+PatternW.PATTERN_LEN)); if(found.getType() != PatternType.NONE){ i
          * = i + 2; pattern.add(found); // System.out.println(found.getType());
          * continue; } i = i + 1; }
-         * 
+         *
          * System.out.println(pattern.toString());
          */
 
@@ -336,9 +350,9 @@ public class Quant {
         // System.out.println(data.get(15).getClose());
         /*
          * String fundStr = body.split("=")[4];
-         * 
+         *
          * String fundsStr = fundStr.replace("\"", "");
-         * 
+         *
          * String[] funds = fundsStr.split("\\^"); for(String str:funds){
          * System.out.println(str.split("~")[0]); }
          */
@@ -375,7 +389,7 @@ public class Quant {
          * System.out.println(item.attr("href")); //
          * System.out.println(item.html()); // System.out.println("ok"); } catch
          * (Exception e) { // System.out.println(e.getMessage()); }
-         * 
+         *
          * }
          */
 
@@ -387,26 +401,26 @@ public class Quant {
          * TDistribution t = new TDistribution(29); double lowerTail =
          * t.cumulativeProbability(-2.656); double upperTail = 1.0 -
          * t.cumulativeProbability(2.75);
-         * 
+         *
          * System.out.println(lowerTail); System.out.println(upperTail);
-         * 
+         *
          * Connection connection = StockDatebaseFactory.getInstance("test");
          * OHLCPointDao ohlcPointDao = new OHLCPointDao(connection); Date
          * endDateTime = TimePeriod.formatStringToDate("2015-04-10"); Date
          * startDateTime = TimePeriod.formatStringToDate("2014-07-01");
-         * 
+         *
          * List<IOHLCPoint> data = ohlcPointDao.findTicker("601875",
          * endDateTime, startDateTime);
-         * 
+         *
          * int len = data.size();
-         * 
+         *
          * System.out.println(len);
          */
 
         /*
          * List<Double> close = new ArrayList<Double>(); List<Double> volume =
          * new ArrayList<Double>();
-         * 
+         *
          * for(int i=0;i<len;i++){ System.out.println(data.toString());
          * close.add(data.get(i).getClose());
          * volume.add((double)data.get(i).getVolume()); }
@@ -421,13 +435,13 @@ public class Quant {
          * ((data.get(i).getClose() - data.get(i).getLow()) -
          * (data.get(i).getHigh() - data.get(i).getClose())) /
          * (data.get(i).getHigh() - data.get(i).getLow());
-         * 
+         *
          * double chaikinVolume = moneyFlowMultiplier * data.get(i).getVolume();
-         * 
+         *
          * volume[count] = chaikinVolume; close[count] = (data.get(i).getClose()
          * - data.get(i-1).getClose())/data.get(i-1).getClose(); //volume[count]
          * = (double)data.get(i).getVolume();
-         * 
+         *
          * //System.out.println(close[count]);
          * //System.out.println(volume[count]); count++; } } }
          * PearsonsCorrelation cov = new PearsonsCorrelation();
@@ -439,7 +453,7 @@ public class Quant {
          * System.out.println
          * (cov1.correlation(Arrays.copyOfRange(close,0,count),
          * Arrays.copyOfRange(volume,0,count)));
-         * 
+         *
          * KendallsCorrelation cov2 = new KendallsCorrelation();
          * System.out.println
          * (cov2.correlation(Arrays.copyOfRange(close,0,count),
@@ -465,11 +479,11 @@ public class Quant {
          * CapitalPoint point = adapter.latestQuotation("sz000858");
          * System.out.println(point.toString()); Connection connection =
          * StockDatebaseFactory.getInstance("test");
-         * 
+         *
          * HushenMarket market = new HushenMarket(connection);
          * market.importMarket(); Set<String> quotes; quotes = market.findAll();
          * System.out.println(quotes.toString());
-         * 
+         *
          * HexunConceptionAdaptor conceptAdaptor = new HexunConceptionAdaptor();
          * Map<String, ArrayList<String>> gn = conceptAdaptor.getGnIndustry();
          * HexunConceptionIndustryDao conceptdao = new

@@ -1,9 +1,8 @@
 package com.pureblue.quant.quantAPI;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -12,17 +11,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 
-import com.pureblue.quant.TencentAPI.HushenMarket;
-import com.pureblue.quant.dao.StockDatebaseFactory;
 import com.pureblue.quant.main.IGeneralAPI;
 
 public class YahooHistoryStock implements IGeneralAPI {
-    
+
     private ThreadPoolExecutor pool = null;
     private int poolSize = 0;
     private Collection<YahooHistoricalThread> threadArray;
-    private Logger logger = null;   
-    
+    private Logger logger = null;
+
     public YahooHistoryStock(int poolSize) {
         super();
         this.setPoolSize(poolSize);
@@ -30,30 +27,23 @@ public class YahooHistoryStock implements IGeneralAPI {
         this.threadArray  = new ArrayList<YahooHistoricalThread>();
         this.logger = Logger.getLogger(getClass());
     }
+    @Override
     public void fetchActions() {
         logger.debug("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes entry.");
-        Connection connection = StockDatebaseFactory.getInstance("YahooQuotes");
-        if (null == connection) {
-            logger.fatal("YahooHistoryStock::fetchActions: connect to SQL database failure.");
-            return;
-        }
-        Set<String> quotes = null;
-        try {
-            HushenMarket market = new HushenMarket(connection);
-            quotes = market.findAll();
-            connection.close();
-        } catch (SQLException e) {
-            logger.fatal("YahooHistoryStock::fetchActions: get hushen stock list failure.");
-            return;
-        }
-
+//        Set<String> quotes = HushenMarketQuotes.stockSymbolFromEastMoney();
+      Set<String> quotes = new HashSet<String>();
+      quotes.add("600030");
         for (String symbol : quotes) {
-            YahooHistoricalThread t = new YahooHistoricalThread("YahooQuotes", symbol);
+            YahooHistoricalThread t = new YahooHistoricalThread("yahoohistroyquotes", symbol);
             threadArray.add(t);
             pool.execute(t);
         }
         logger.debug("YahooHistoryStock::fetchActions: fetch yahoo web history stock quotes exit!");
     }
+    public int getPoolSize() {
+        return poolSize;
+    }
+
     public void pending() {
         logger.debug("YahooHistoryStock::pending entry.");
         pool.shutdown();
@@ -70,7 +60,10 @@ public class YahooHistoryStock implements IGeneralAPI {
         }
         logger.debug("YahooHistoryStock::pending exit.");
     }
-    
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
+    }
+    @Override
     public void stop(){
         logger.debug("YahooHistoryStock::stop entry.");
         Iterator<YahooHistoricalThread> iter = threadArray.iterator();
@@ -78,11 +71,5 @@ public class YahooHistoryStock implements IGeneralAPI {
             pool.remove(iter.next());
         }
         logger.debug("YahooHistoryStock::stop exit.");
-    }
-    public int getPoolSize() {
-        return poolSize;
-    }
-    public void setPoolSize(int poolSize) {
-        this.poolSize = poolSize;
     }
 }

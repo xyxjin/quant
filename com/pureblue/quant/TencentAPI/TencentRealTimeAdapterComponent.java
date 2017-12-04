@@ -1,5 +1,6 @@
 package com.pureblue.quant.TencentAPI;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -7,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 
 import com.pureblue.quant.dao.CapitalPoint;
@@ -84,7 +86,7 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
             Double retailRate = parseTokenToDouble(tokens[8]);
             Double volumn = parseTokenToDouble(tokens[9]);
             
-            System.out.println(tokens);
+//            System.out.println(tokens);
             
             tokens = basicInfo.split("~");
             if(tokens.length < 50)
@@ -93,7 +95,7 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
                         + basicInfo);
                 return point;
             }
-            System.out.println("date: " + tokens[30]);
+//            System.out.println("date: " + tokens[30]);
             date = dateFormat.parse(tokens[30]);
             Double price = parseTokenToDouble(tokens[3]);
             Double turnoverRate = parseTokenToDouble(tokens[38]);
@@ -125,7 +127,7 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
         }
     }
     
-    public CapitalPoint latestQuotation() {
+    public CapitalPoint latestQuotation() throws HttpException, IOException {
         logger.info("TencentRealTimeAdapterComponent::latestQuotation: Tencent Realtime " + quotedSymbol + " adaptor fetch the last update time entry.");
         String queryCapitalUrl = String.format(TENCENT_STOCK_CAPITAL_QUERY_URL, quotedSymbol);
         String queryPriceUrl = String.format(TENCENT_STOCK_PRICES_QUERY_URL, quotedSymbol);
@@ -133,7 +135,14 @@ public class TencentRealTimeAdapterComponent implements IMarketDataProvider {
         String rspCapitalString = HttpUtil.httpQuery(queryCapitalUrl);
         String rspPriceString = HttpUtil.httpQuery(queryPriceUrl);
         if(rspCapitalString == null || rspPriceString == null)
+        {
             return null;
+        }
+        if(rspCapitalString.contains("pv_none_match"))
+        {
+            logger.info("TencentRealTimeAdapterComponent::latestQuotation: Tencent Realtime " + quotedSymbol + " is suspension state.");
+            return null;
+        }
         return parseCapitalLine(rspCapitalString, rspPriceString, dateFormat);
     }
 }

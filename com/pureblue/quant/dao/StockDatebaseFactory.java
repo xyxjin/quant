@@ -16,11 +16,10 @@ public class StockDatebaseFactory {
         StockDatebaseFactory.logger = Logger.getLogger(StockDatebaseFactory.class);
         logger.debug("StockDatebaseFactory::getInstance: get SQL datebase " + dataBase + " entry.");
         Connection connection = null;
-        String url = "jdbc:mysql://127.0.0.1/" + dataBase;
+        String url = "jdbc:mysql://127.0.0.1:3306/" + dataBase;
         try {
             Class.forName("com.mysql.jdbc.Driver");
-            // System.out.println("成功加载MySQL驱动程序");
-            connection = DriverManager.getConnection(url, "root", "root");
+            connection = DriverManager.getConnection(url, "root", "");
             connection.setAutoCommit(false);
         } catch (SQLException e) {
             logger.fatal("StockDatebaseFactory::getInstance: get connect to SQL datebase error with " + e.toString());

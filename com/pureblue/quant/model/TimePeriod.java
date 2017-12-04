@@ -21,7 +21,7 @@ public class TimePeriod {
 
 	private final UnitOfTime unitOfTime;
 	private final int amount;
-	
+
 	/**
 	 * @param unitOfTime the unit in which this period is measured
 	 * @param amount the amount of time units
@@ -39,16 +39,17 @@ public class TimePeriod {
 	public int getAmount() {
 		return amount;
 	}
-	
-	public String toString() {
+
+	@Override
+    public String toString() {
 		return amount + " " + unitOfTime.name();
 	}
-	
+
 	/**
 	 * Adds a time period to a specific date
 	 * @param date original date
 	 * @param period period to be added
-	 * @return a {@link java.util.Date} result 
+	 * @return a {@link java.util.Date} result
 	 */
 	public static Date addPeriodToDate(Date date, TimePeriod period) {
 		Calendar cal = Calendar.getInstance();
@@ -62,7 +63,7 @@ public class TimePeriod {
 	 * Subtracts a time period to a specific date
 	 * @param date original date
 	 * @param period period to be subtracted
-	 * @return a {@link java.util.Date} result 
+	 * @return a {@link java.util.Date} result
 	 */
 	public static Date subtractPeriodFromDate(Date date, TimePeriod period) {
 		Calendar cal = Calendar.getInstance();
@@ -105,23 +106,23 @@ public class TimePeriod {
 		String wantDateString = formatter.format(wantDate);
 		return wantDateString;
 	}
-	
-	public static int getWeekOfDate(Date date) {        
-	    Calendar calendar = Calendar.getInstance();      
-	    if(date != null){        
-	         calendar.setTime(date);      
-	    }        
-	    int w = calendar.get(Calendar.DAY_OF_WEEK) - 1;      
-	    if (w < 0){        
-	        w = 0;      
-	    } 
-	    return w;   
+
+	public static int getWeekOfDate(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    if(date != null){
+	         calendar.setTime(date);
+	    }
+	    int w = calendar.get(Calendar.DAY_OF_WEEK) - 1;
+	    if (w < 0){
+	        w = 0;
+	    }
+	    return w;
 	}
-	
+
 	public static String currentYearToAbbr(){
-		return new SimpleDateFormat("yy",Locale.CHINESE).format(Calendar.getInstance().getTime());
+		return new SimpleDateFormat("yyyy",Locale.CHINESE).format(Calendar.getInstance().getTime());
 	}
-	
+
 	public static String yearToAbbr(String year){
 		return year.substring(2);
 	}

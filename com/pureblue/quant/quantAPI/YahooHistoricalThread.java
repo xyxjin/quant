@@ -10,9 +10,9 @@ import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
+import com.pureblue.quant.ConnectionPool.ConnectionManager;
 import com.pureblue.quant.dao.IOHLCPoint;
 import com.pureblue.quant.dao.OHLCPointDao;
-import com.pureblue.quant.dao.StockDatebaseFactory;
 import com.pureblue.quant.main.portfolio;
 import com.pureblue.quant.model.BarSize;
 import com.pureblue.quant.model.DataType;
@@ -23,6 +23,7 @@ import com.pureblue.quant.yahooAPI.YahooFinanceAdapterComponent;
 public class YahooHistoricalThread implements Runnable {
     private String dbName;
     private String stockId;
+    private ConnectionManager cm;
     private Connection connection;
     private Logger logger;
 
@@ -30,9 +31,11 @@ public class YahooHistoricalThread implements Runnable {
         super();
         this.dbName = dbName;
         this.stockId = stockId;
+        this.cm = ConnectionManager.getInstance();
         this.logger = Logger.getLogger(YahooHistoricalThread.class);
     }
 
+    @Override
     public void run() {
         logger.debug("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " entry!!");
         List<IOHLCPoint> info = null;
@@ -46,7 +49,8 @@ public class YahooHistoricalThread implements Runnable {
         YahooFinanceAdapterComponent adapter = new YahooFinanceAdapterComponent(stockId);
 
         try {
-            connection = StockDatebaseFactory.getInstance(dbName);
+//            connection = StockDatebaseFactory.getInstance(dbName);
+            connection = cm.getConnection(dbName);
             OHLCPointDao ohlcPointDao = new OHLCPointDao(connection);
             ohlcPointDao.initDb(stockId);
             startDateTime = ohlcPointDao.lastDate(stockId);
@@ -74,7 +78,7 @@ public class YahooHistoricalThread implements Runnable {
         }
         finally {
             try {
-                connection.close();
+                cm.closeConnection(dbName, connection);
                 logger.info("YahooHistoricalThread::run: Yahoo history thread close the jdbc connection!");
             } catch (SQLException | NullPointerException e) {
                 logger.warn("YahooHistoricalThread::run: Yahoo history thread for " + stockId + " close SQL db operation failure with error info " + e.toString());
