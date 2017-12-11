@@ -46,6 +46,11 @@ public class OHLCPointDao implements IOHLCPointDao {
         stmt.execute();
     }
 
+    public void dropTable(String stockDatabaseId) throws SQLException {
+        PreparedStatement stmt = connection.prepareStatement("DROP TABLE " + "tb" + stockDatabaseId);
+        stmt.execute();
+    }
+
     @Override
     public List<IOHLCPoint> find(String stockDatabaseId) throws SQLException {
         PreparedStatement stmt = connection.prepareStatement("SELECT " + SELECT_FIELDS + " FROM " + "tb" + stockDatabaseId + " WHERE SDB_ID = ? ORDER BY DATE_TIME");
@@ -191,7 +196,7 @@ public class OHLCPointDao implements IOHLCPointDao {
             result = new Date(rs.getTimestamp(2).getTime());
             Calendar rightNow = Calendar.getInstance();
             rightNow.setTime(result);
-            rightNow.add(Calendar.DAY_OF_YEAR, 1);
+//            rightNow.add(Calendar.DAY_OF_YEAR, 1);
             result = rightNow.getTime();
         }
         rs.close();

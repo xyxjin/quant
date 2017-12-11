@@ -1,14 +1,9 @@
 package com.pureblue.quant.ConnectionPool;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -17,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 
-/** 
+/**
  * 类说明 :友元类，包内可见，不提供给客户程序直接访问。
  */
 class ConnectionPool implements IConnectionPool {
@@ -30,9 +25,9 @@ class ConnectionPool implements IConnectionPool {
     private Boolean isActive = true;
 
     // 空闲连接池 。由于List读写频繁，使用LinkedList存储比较合适
-    private LinkedList<Connection> freeConnections = new LinkedList<Connection>();  
+    private LinkedList<Connection> freeConnections = new LinkedList<Connection>();
     // 活动连接池。活动连接数 <= 允许最大连接数(maxConnections)
-    private LinkedList<Connection> activeConnections = new LinkedList<Connection>(); 
+    private LinkedList<Connection> activeConnections = new LinkedList<Connection>();
 
     //当前线程获得的连接
     private ThreadLocal<Connection> currentConnection= new ThreadLocal<Connection>();
@@ -46,7 +41,7 @@ class ConnectionPool implements IConnectionPool {
         ConnectionPool connpool=new ConnectionPool();
         connpool.propertyBean = propertyBean;
 
-        //加载驱动 
+        //加载驱动
 
         //在多节点环境配置下，因为在这里无法判断驱动是否已经加载,可能会造成多次重复加载相同驱动。
         //因此加载驱动的动作，挪到connectionManager管理类中去实现了。
@@ -122,7 +117,7 @@ class ConnectionPool implements IConnectionPool {
     public synchronized Connection getConnection() {
         Connection conn = null;
         if (this.getActiveNum() < this.propertyBean.getMaxConnections()) {
-            // 分支1：当前使用的连接没有达到最大连接数  
+            // 分支1：当前使用的连接没有达到最大连接数
             // 基本点3、在连接池没有达到最大连接数之前，如果有可用的空闲连接就直接使用空闲连接，如果没有，就创建新的连接。
             if (this.getFreeNum() > 0) {
                 // 分支1.1：如果空闲池中有连接，就从空闲池中直接获取
@@ -154,16 +149,16 @@ class ConnectionPool implements IConnectionPool {
                 }
             }
         } else {
-            // 分支2：当前已到达最大连接数  
+            // 分支2：当前已到达最大连接数
             // 基本点4、当连接池中的活动连接数达到最大连接数，新的请求进入等待状态，直到有连接被释放。
             log.info("分支2：当前已到达最大连接数 ");
             long startTime = System.currentTimeMillis();
 
-            //进入等待状态。等待被notify(),notifyALL()唤醒或者超时自动苏醒  
+            //进入等待状态。等待被notify(),notifyALL()唤醒或者超时自动苏醒
             try{
-                this.wait(this.propertyBean.getConninterval());  
-            }catch(InterruptedException e) {  
-                log.error("线程等待被打断");  
+                this.wait(this.propertyBean.getConninterval());
+            }catch(InterruptedException e) {
+                log.error("线程等待被打断");
             }
 
             //若线程超时前被唤醒并成功获取连接，就不会走到return null。
@@ -172,10 +167,15 @@ class ConnectionPool implements IConnectionPool {
             if(this.propertyBean.getTimeout()!=0){
                 if(System.currentTimeMillis() - startTime > this.propertyBean.getTimeout())
                 {
-                    log.error("线程等待超时"); 
+                    log.error("线程等待超时");
                     return null;
                 }
             }
+/*            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                log.error("线程sleep等待被打断");
+            }*/
             conn = this.getConnection();
 
         }
@@ -220,23 +220,23 @@ class ConnectionPool implements IConnectionPool {
 
     @Override
     public synchronized void destroy() {
-        for (Connection conn : this.freeConnections) {  
+        for (Connection conn : this.freeConnections) {
             try {
-                if (this.isValidConnection(conn)) { 
+                if (this.isValidConnection(conn)) {
                     conn.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-            }   
-        }  
-        for (Connection conn : this.activeConnections) {  
+            }
+        }
+        for (Connection conn : this.activeConnections) {
             try {
-                if (this.isValidConnection(conn)) { 
+                if (this.isValidConnection(conn)) {
                     conn.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
-            } 
+            }
         }
         this.isActive = false;
         this.freeConnections.clear();
@@ -260,8 +260,8 @@ class ConnectionPool implements IConnectionPool {
         ses.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                System.out.println(nodename +"空闲连接数："+getFreeNum());  
-                System.out.println(nodename +"活动连接数："+getActiveNum());   
+                System.out.println(nodename +"空闲连接数："+getFreeNum());
+                System.out.println(nodename +"活动连接数："+getActiveNum());
 
             }
         }, 1, 1, TimeUnit.SECONDS);
